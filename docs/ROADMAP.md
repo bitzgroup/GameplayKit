@@ -7,14 +7,29 @@ Check off items as they are implemented and tested. Items tied to Apple-platform
 (SpriteKit/SceneKit scene integration) are noted as **out of scope** since there is no Android
 equivalent to bind to; the underlying algorithms are still implemented where useful standalone.
 
+## Design Principle: Kotlin-Idiomatic, Not a Literal Port
+
+The public API follows GameplayKit's design and behavior, but is expressed in idiomatic Kotlin
+rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
+
+- Nullability is modeled with Kotlin's type system (`?`), not Optionals-as-comments.
+- Prefer Kotlin constructs where they fit naturally: data classes, sealed classes/interfaces,
+  extension functions, named/default arguments, property syntax over getter/setter methods.
+- No `NSPredicate` equivalent — `GKRule` takes Kotlin lambdas instead.
+- Class/member names follow GameplayKit naming (e.g. `GKEntity`, `GKStateMachine`) for
+  discoverability by developers coming from Apple's docs, but internals and supporting APIs use
+  standard Kotlin conventions (camelCase, no Hungarian/Obj-C prefixes on new types we introduce).
+- Deviations from the Apple API shape are recorded as they happen (see Phase 11).
+
 ## Phase 0 — Project Setup
 
-- [ ] Scaffold Gradle Android library module (Kotlin DSL, `com.android.library` plugin)
-- [ ] Configure Kotlin, min/target/compile SDK versions
-- [ ] Configure unit test setup (JUnit / kotlin.test)
-- [ ] Configure `ktlint`/`detekt` (or chosen lint/format tooling)
-- [ ] Set up CI (build + test on push/PR)
-- [ ] Set up Maven publishing (Maven Central / JitPack) configuration
+- [x] Scaffold Gradle Android library module (Kotlin DSL, `com.android.library` plugin)
+- [x] Configure Kotlin, min/target/compile SDK versions (minSdk 24, compileSdk/targetSdk 34)
+- [x] Configure unit test setup (JUnit / kotlin.test)
+- [x] Configure `ktlint`/`detekt` (or chosen lint/format tooling)
+- [x] Set up CI (build + test on push/PR via GitHub Actions)
+- [x] Set up Maven publishing configuration (`maven-publish` scaffold, verified with
+      `publishToMavenLocal`); actual Maven Central/JitPack release credentials still TBD
 
 ## Phase 1 — Entity-Component Architecture
 
