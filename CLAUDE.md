@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project status
 
 Phase 0 (project scaffolding) is complete: a Gradle Android library project builds, tests, lints, and
-has a `maven-publish` scaffold. No GameplayKit API types are implemented yet — see `docs/ROADMAP.md`
-for progress.
+has a `maven-publish` scaffold. Phase 1 (entity-component architecture: `GKEntity`, `GKComponent`,
+`GKComponentSystem`) is implemented and tested. See `docs/ROADMAP.md` for full progress.
 
 ## Intent
 

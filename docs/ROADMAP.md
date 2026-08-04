@@ -13,6 +13,8 @@ The public API follows GameplayKit's design and behavior, but is expressed in id
 rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 - Nullability is modeled with Kotlin's type system (`?`), not Optionals-as-comments.
+- Time intervals (Apple's `TimeInterval`, e.g. `update(deltaTime:)`) are modeled as
+  `kotlin.time.Duration` rather than a raw `Double` of seconds, to prevent unit-confusion bugs.
 - Prefer Kotlin constructs where they fit naturally: data classes, sealed classes/interfaces,
   extension functions, named/default arguments, property syntax over getter/setter methods.
 - No `NSPredicate` equivalent — `GKRule` takes Kotlin lambdas instead.
@@ -33,9 +35,9 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Phase 1 — Entity-Component Architecture
 
-- [ ] `GKEntity` — container holding a set of components
-- [ ] `GKComponent` — base component class, `updateTime`
-- [ ] `GKComponentSystem` — homogeneous component collection with ordered `update`
+- [x] `GKEntity` — container holding a set of components
+- [x] `GKComponent` — base component class, `updateTime`
+- [x] `GKComponentSystem` — homogeneous component collection with ordered `update`
 
 ## Phase 2 — State Machines
 
