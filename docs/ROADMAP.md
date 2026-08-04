@@ -46,14 +46,18 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Phase 3 — Randomization
 
-- [ ] `GKRandom` — common random source contract
-- [ ] `GKRandomSource` — base random source (`nextInt`, `nextUniform`, `nextBool`)
-- [ ] `GKLinearCongruentialRandomSource`
-- [ ] `GKMersenneTwisterRandomSource`
-- [ ] `GKARC4RandomSource`
-- [ ] `GKRandomDistribution` (uniform distribution over a range)
-- [ ] `GKGaussianDistribution`
-- [ ] `GKShuffledDistribution`
+- [x] `GKRandom` — common random source contract
+- [x] `GKRandomSource` — base random source (`nextInt`, `nextUniform`, `nextBool`)
+- [x] `GKLinearCongruentialRandomSource` — backed directly by `java.util.Random`, which
+      GameplayKit's docs confirm implements the same 48-bit LCG algorithm (bit-for-bit verified)
+- [x] `GKMersenneTwisterRandomSource` — reference MT19937-64 core generator (matches
+      `std::mt19937_64`); nextInt/nextUniform derivation is not documented by Apple, so exact
+      output is not guaranteed bit-identical to GameplayKit, only the same core algorithm
+- [x] `GKARC4RandomSource` — RC4 keystream (KSA + PRGA) with `dropValues` support
+- [x] `GKRandomDistribution` (uniform distribution over a range)
+- [x] `GKGaussianDistribution` — Marsaglia polar method; matches the documented mean/deviation
+      contract, not bit-identical to Apple's undocumented internal sampler
+- [x] `GKShuffledDistribution`
 
 ## Phase 4 — Spatial Partitioning
 

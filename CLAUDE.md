@@ -5,9 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project status
 
 Phase 0 (project scaffolding) is complete: a Gradle Android library project builds, tests, lints, and
-has a `maven-publish` scaffold. Phase 1 (entity-component architecture: `GKEntity`, `GKComponent`,
-`GKComponentSystem`) and Phase 2 (state machines: `GKState`, `GKStateMachine`) are implemented and
-tested. See `docs/ROADMAP.md` for full progress.
+has a `maven-publish` scaffold. Phase 1 (entity-component architecture), Phase 2 (state machines),
+and Phase 3 (randomization: `GKRandom`, `GKRandomSource` and its subclasses, `GKRandomDistribution`
+and its subclasses) are implemented and tested. See `docs/ROADMAP.md` for full progress.
 
 ## Intent
 
