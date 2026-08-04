@@ -41,8 +41,8 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Phase 2 — State Machines
 
-- [ ] `GKState` — base state class (`didEnter`, `willExit`, `update`, `isValidNextState`)
-- [ ] `GKStateMachine` — state container, `enter`, `update`, `currentState`
+- [x] `GKState` — base state class (`didEnter`, `willExit`, `update`, `isValidNextState`)
+- [x] `GKStateMachine` — state container, `enter`, `update`, `currentState`
 
 ## Phase 3 — Randomization
 
