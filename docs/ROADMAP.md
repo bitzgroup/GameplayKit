@@ -69,13 +69,18 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Phase 5 — Pathfinding
 
-- [ ] `GKGraphNode` (base) / `GKGraphNode2D` / `GKGraphNode3D`
-- [ ] `GKGraph` — node graph, `findPath`, `addNodes`, `removeNodes`, `connectToLowestCostNode`
-- [ ] `GKGridGraphNode` / `GKGridGraph` (grid-based pathfinding, diagonal strategy)
-- [ ] `GKObstacle` (base)
-- [ ] `GKCircleObstacle`
-- [ ] `GKPolygonObstacle`
-- [ ] `GKObstacleGraph` (graph generated from obstacles, buffer radius)
+- [x] `Vector2Int` — stand-in for GameplayKit's `vector_int2` SIMD type, used for grid coordinates
+- [x] `GKGraphNode` (base) / `GKGraphNode2D` / `GKGraphNode3D` — A* pathfinding via `pathFrom`/`pathTo`
+      (renamed from GameplayKit's `findPath(from:)`/`findPath(to:)`, which differ only by Swift
+      argument label and would collide as plain Kotlin overloads)
+- [x] `GKGraph` — node graph, `findPath`, `add`/`remove` nodes, `connectToLowestCostNode`
+- [x] `GKGridGraphNode` / `GKGridGraph` (grid-based pathfinding, `diagonalsAllowed`)
+- [x] `GKObstacle` (base)
+- [x] `GKCircleObstacle`
+- [x] `GKPolygonObstacle` — exposes `vertices: List<Vector2>` rather than GameplayKit's paired
+      `vertexCount`/`vertex(at:)` accessors
+- [x] `GKObstacleGraph` (visibility graph generated from obstacles, buffer radius); vertex-offset
+      buffering assumes convex, non-self-intersecting obstacle polygons
 
 ## Phase 6 — Agents, Goals, and Behaviors (Steering)
 
