@@ -7,9 +7,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Phase 0 (project scaffolding) is complete: a Gradle Android library project builds, tests, lints, and
 has a `maven-publish` scaffold. Phase 1 (entity-component architecture), Phase 2 (state machines),
 Phase 3 (randomization: `GKRandom`, `GKRandomSource` and its subclasses, `GKRandomDistribution`
-and its subclasses), and Phase 4 (spatial partitioning: `GKQuadtree`/`GKQuadtreeNode`,
-`GKOctree`/`GKOctreeNode`, plus the `Vector2`/`Vector3`/`GKQuad`/`GKBox` value types they're built on)
-are implemented and tested. See `docs/ROADMAP.md` for full progress.
+and its subclasses), Phase 4 (spatial partitioning: `GKQuadtree`/`GKQuadtreeNode`,
+`GKOctree`/`GKOctreeNode`, plus the `Vector2`/`Vector3`/`GKQuad`/`GKBox` value types they're built on),
+and Phase 5 (pathfinding: `GKGraphNode`/`GKGraphNode2D`/`GKGraphNode3D`, `GKGraph`,
+`GKGridGraphNode`/`GKGridGraph`, `GKObstacle`/`GKCircleObstacle`/`GKPolygonObstacle`,
+`GKObstacleGraph`) are implemented and tested. See `docs/ROADMAP.md` for full progress.
 
 ## Intent
 
