@@ -61,8 +61,11 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Phase 4 — Spatial Partitioning
 
-- [ ] `GKQuadtree` / `GKQuadtreeNode` (2D spatial partitioning)
-- [ ] `GKOctree` / `GKOctreeNode` (3D spatial partitioning)
+- [x] `Vector2` / `Vector3` — stand-ins for GameplayKit's `vector_float2`/`vector_float3` SIMD types,
+      since there is no SIMD vector type in the Kotlin/Android standard library
+- [x] `GKQuad` / `GKBox` — axis-aligned 2D/3D bounding regions
+- [x] `GKQuadtree` / `GKQuadtreeNode` (2D spatial partitioning)
+- [x] `GKOctree` / `GKOctreeNode` (3D spatial partitioning)
 
 ## Phase 5 — Pathfinding
 
