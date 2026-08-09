@@ -100,8 +100,15 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Phase 7 — Rule Systems
 
-- [ ] `GKRule` — base rule (predicate + action), Kotlin-lambda based (no `NSPredicate` equivalent)
-- [ ] `GKRuleSystem` — ordered rule evaluation, fuzzy state via `grade`
+- [x] `GKRule` — base rule (`salience`, open `evaluatePredicate`/`performAction` for subclassing);
+      companion factories `fromPredicate`/`toAssertFact`/`toRetractFact` take Kotlin lambdas instead
+      of GameplayKit's `NSPredicate`-based `GKRule.fromPredicateAssertingFact` family, which is not
+      implemented here
+- [x] `GKRuleSystem` — `agenda`/`executed`/`rules`/`state`, `addRule(s)`/`removeAllRules`,
+      `evaluate()` (ascending-salience order, ties broken by insertion order — inferred from Apple's
+      own FizzBuzz `GKRuleSystem` example, since the prose alone doesn't specify tie-break direction),
+      `reset()`; fuzzy state via `assertFact`/`retractFact`/`getGrade` (grade accumulated/diminished,
+      clamped to `[0, 1]`) and `getMinimumGrade`/`getMaximumGrade` (fuzzy AND/OR over facts)
 
 ## Phase 8 — Decision Trees
 
