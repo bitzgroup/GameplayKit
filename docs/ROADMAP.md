@@ -112,8 +112,17 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Phase 8 — Decision Trees
 
-- [ ] `GKDecisionNode` — tree node with attribute/weight
-- [ ] `GKDecisionTree` — construction, evaluation, and pretty-printing
+- [x] `GKDecisionNode` — tree node built via `createBranch(value:attribute:)`/`createBranch(predicate:attribute:)`
+      (Kotlin lambda instead of `NSPredicate`)/`createBranch(weight:attribute:)`; `attribute` is
+      exposed as a public, readable property (Apple keeps it private — there is no other way to
+      introspect a Kotlin-built tree) and there is no public constructor, matching GameplayKit
+- [x] `GKDecisionTree` — `init(attribute:)`, `findAction`, `randomSource` (used to resolve weighted
+      branches); the `examples`/`actions`/`attributes` constructor builds a tree by the classic ID3
+      algorithm (highest information gain first) — GameplayKit doesn't document its own tie-break/
+      pruning behavior, so this is contract-conformant (fits the training data), not bit-identical;
+      `prettyPrint()` is an addition beyond GameplayKit's API (Apple exposes no tree introspection
+      at all) for debugging trees built in Kotlin. Not implemented: the `NSCoder`/`NSURL`-based
+      initializers and `export(to:)` — this library has no `NSCoding`/archiving equivalent anywhere
 
 ## Phase 9 — Game Model AI (Minmax / Monte Carlo)
 
