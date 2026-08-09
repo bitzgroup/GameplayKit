@@ -45,9 +45,28 @@ with `sdk.dir=/path/to/Android/sdk`.
   hardcoded version strings in build files.
 - `config/detekt/detekt.yml` — detekt rule overrides (builds upon detekt's default ruleset).
 
+## Git Branching Workflow
+
+This repo follows a [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)-style
+branching model.
+
+| Branch | Branches from | Merges into | Naming |
+|---|---|---|---|
+| `main` | — | — | Always releasable. Direct pushes are blocked (branch protection); merge only from `release/*` or `hotfix/*`. Each merge is tagged with the corresponding `VERSION_NAME`. |
+| `develop` | `main` | — | Integration branch for work heading to the next release. Also branch-protected. |
+| `feature/<name>` | `develop` | `develop` | e.g. `feature/phase-7-rule-systems`, `feature/sample-app`. |
+| `release/<version>` | `develop` | `main` **and** `develop` | e.g. `release/0.2.0`. Release-prep fixes only, no new features. |
+| `hotfix/<name>` | `main` | `main` **and** `develop` | e.g. `hotfix/0.1.1-npe-fix`. Urgent fixes to a released `main`. |
+
+- Every merge goes through a PR (no direct pushes to `main` or `develop`); CI
+  (`ktlintCheck detekt assemble testDebugUnitTest`) must pass first.
+- `release/*`/`hotfix/*` don't exist yet: the first release (`release/0.1.0`, tagged on `main`) is cut
+  once the full `docs/ROADMAP.md` plan is complete. Until then, all work happens on `feature/*`
+  branches merged into `develop`.
+
 ## Working in this repo
 
 - **Documentation language:** all docs (README, KDoc, ROADMAP, etc.) must be written in **English**.
 - **Documentation location:** project docs beyond the root `README.md` (roadmap, design notes, API compatibility notes, etc.) live under `docs/`.
 - **`.gitignore`** covers macOS `.DS_Store` plus a standard Android/Gradle project (`.gradle/`, `build/`, `local.properties`, `*.apk`/`*.aab`, keystores, `google-services.json`, IntelliJ/Android Studio files).
-- **Git operations:** do not run `git commit` or `git push` unless explicitly requested by the user for that specific change.
+- **Git operations:** branch per the workflow above (`feature/*` off `develop`, etc.); do not run `git commit` or `git push` unless explicitly requested by the user for that specific change.
