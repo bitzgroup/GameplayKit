@@ -5,6 +5,12 @@ style:
   MagicNumber:
     active: false
 
+complexity:
+  TooManyFunctions:
+    # GKGoal's companion object mirrors GameplayKit's own ~12 GKGoal factory methods 1:1; that's a
+    # deliberate, cohesive API surface, not poor organization.
+    thresholdInObjects: 15
+
 comments:
   UndocumentedPublicClass:
     active: false

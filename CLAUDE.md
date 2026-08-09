@@ -9,9 +9,11 @@ has a `maven-publish` scaffold. Phase 1 (entity-component architecture), Phase 2
 Phase 3 (randomization: `GKRandom`, `GKRandomSource` and its subclasses, `GKRandomDistribution`
 and its subclasses), Phase 4 (spatial partitioning: `GKQuadtree`/`GKQuadtreeNode`,
 `GKOctree`/`GKOctreeNode`, plus the `Vector2`/`Vector3`/`GKQuad`/`GKBox` value types they're built on),
-and Phase 5 (pathfinding: `GKGraphNode`/`GKGraphNode2D`/`GKGraphNode3D`, `GKGraph`,
+Phase 5 (pathfinding: `GKGraphNode`/`GKGraphNode2D`/`GKGraphNode3D`, `GKGraph`,
 `GKGridGraphNode`/`GKGridGraph`, `GKObstacle`/`GKCircleObstacle`/`GKPolygonObstacle`,
-`GKObstacleGraph`) are implemented and tested. See `docs/ROADMAP.md` for full progress.
+`GKObstacleGraph`), and Phase 6 (agents/goals/behaviors: `GKAgent`/`GKAgent2D`/`GKAgent3D`,
+`GKAgentDelegate`, `GKPath`, `GKGoal`, `GKBehavior`) are implemented and tested. See
+`docs/ROADMAP.md` for full progress.
 
 ## Intent
 
