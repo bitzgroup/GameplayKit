@@ -11,9 +11,9 @@ and its subclasses), Phase 4 (spatial partitioning: `GKQuadtree`/`GKQuadtreeNode
 `GKOctree`/`GKOctreeNode`, plus the `Vector2`/`Vector3`/`GKQuad`/`GKBox` value types they're built on),
 Phase 5 (pathfinding: `GKGraphNode`/`GKGraphNode2D`/`GKGraphNode3D`, `GKGraph`,
 `GKGridGraphNode`/`GKGridGraph`, `GKObstacle`/`GKCircleObstacle`/`GKPolygonObstacle`,
-`GKObstacleGraph`), and Phase 6 (agents/goals/behaviors: `GKAgent`/`GKAgent2D`/`GKAgent3D`,
-`GKAgentDelegate`, `GKPath`, `GKGoal`, `GKBehavior`) are implemented and tested. See
-`docs/ROADMAP.md` for full progress.
+`GKObstacleGraph`), Phase 6 (agents/goals/behaviors: `GKAgent`/`GKAgent2D`/`GKAgent3D`,
+`GKAgentDelegate`, `GKPath`, `GKGoal`, `GKBehavior`), and Phase 7 (rule systems: `GKRule`,
+`GKRuleSystem`) are implemented and tested. See `docs/ROADMAP.md` for full progress.
 
 ## Intent
 
