@@ -13,8 +13,10 @@ Phase 5 (pathfinding: `GKGraphNode`/`GKGraphNode2D`/`GKGraphNode3D`, `GKGraph`,
 `GKGridGraphNode`/`GKGridGraph`, `GKObstacle`/`GKCircleObstacle`/`GKPolygonObstacle`,
 `GKObstacleGraph`), Phase 6 (agents/goals/behaviors: `GKAgent`/`GKAgent2D`/`GKAgent3D`,
 `GKAgentDelegate`, `GKPath`, `GKGoal`, `GKBehavior`), Phase 7 (rule systems: `GKRule`,
-`GKRuleSystem`), and Phase 8 (decision trees: `GKDecisionNode`, `GKDecisionTree`) are implemented
-and tested. See `docs/ROADMAP.md` for full progress.
+`GKRuleSystem`), Phase 8 (decision trees: `GKDecisionNode`, `GKDecisionTree`), and Phase 9 (game
+model AI: `GKGameModel`, `GKGameModelPlayer`, `GKGameModelUpdate`, `GKStrategist`,
+`GKMinmaxStrategist`, `GKMonteCarloStrategist`) are implemented and tested. See
+`docs/ROADMAP.md` for full progress.
 
 ## Intent
 
