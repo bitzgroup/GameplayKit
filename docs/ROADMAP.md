@@ -189,9 +189,9 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 ## Phase 11 — Documentation & Samples
 
 - [x] KDoc for all public API surfaces
-- [ ] API compatibility notes (documented deviations from Apple's GameplayKit where Kotlin/Android
-      constraints require a different shape)
-- [ ] README with usage examples per module
+- [x] API compatibility notes (documented deviations from Apple's GameplayKit where Kotlin/Android
+      constraints require a different shape) — see `docs/API_COMPATIBILITY.md`
+- [x] README with usage examples per module
 - **Not in this repo:** a sample Android app demonstrating entities/components, pathfinding, and
       agents is planned, but will live in its own repository rather than in-tree here (decided
       separately from this checklist)
