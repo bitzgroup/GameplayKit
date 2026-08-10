@@ -126,12 +126,26 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Phase 9 — Game Model AI (Minmax / Monte Carlo)
 
-- [ ] `GKGameModel` — protocol/interface for turn-based game state
-- [ ] `GKGameModelPlayer` — protocol/interface for a player
-- [ ] `GKGameModelUpdate` — protocol/interface for applying a move
-- [ ] `GKStrategist` — common strategist contract
-- [ ] `GKMinmaxStrategist` — minimax with alpha-beta pruning
-- [ ] `GKMonteCarloStrategist` — Monte Carlo tree search
+- [x] `GKGameModel` — interface for turn-based game state (`players`, `activePlayer`, `copy`,
+      `setGameModel`, `gameModelUpdates`, `apply`; optional `score`/`isWin`/`isLoss`/
+      `unapplyGameModelUpdate` default to `0`/`false`/`false`/no-op). `copy()` stands in for
+      GameplayKit's `NSCopying` conformance (no Kotlin equivalent) and must be a true deep copy:
+      both strategists below branch their search by copying rather than by mutating one shared
+      model via `apply`/`unapplyGameModelUpdate`, so `unapplyGameModelUpdate` is kept only for API
+      parity and is never called internally — GameplayKit documents its own `GKMinmaxStrategist`
+      as backtracking via unapply for space efficiency, which this port doesn't attempt to match
+- [x] `GKGameModelPlayer` — interface for a player (`playerId`)
+- [x] `GKGameModelUpdate` — interface for a move (`value`)
+- [x] `GKStrategist` — common strategist contract (`gameModel`, `randomSource`,
+      `bestMoveForActivePlayer`)
+- [x] `GKMinmaxStrategist` — minimax with alpha-beta pruning, generalized past two players by
+      treating every player other than the one being searched for as a single adversary; also
+      `bestMove(for:)` (any player, not just the active one) and `randomMove(for:numMovesToConsider:)`.
+      Tie-breaking and exact bit-identical move choice aren't documented by Apple, so this keeps
+      the first-seen move on a tie
+- [x] `GKMonteCarloStrategist` — Monte Carlo tree search with the standard UCT selection rule;
+      `budget`/`explorationParameter` per GameplayKit, plus a `maxPlayoutDepth` rollout safety cap
+      this port adds since GameplayKit doesn't document its own rollout termination policy either
 
 ## Phase 10 — Noise (algorithmic core only)
 
