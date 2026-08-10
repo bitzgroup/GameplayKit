@@ -1,20 +1,22 @@
 package jp.co.bitz.gameplaykit
 
-// Game AI that evaluates potential game states, scores them, and attempts to maximize its own
-// score while minimizing its opponents', mirroring GameplayKit's GKMinmaxStrategist: minimax with
-// alpha-beta pruning, generalized past two players by treating every player other than the one
-// being searched for as a single adversary trying to minimize that player's score.
-//
-// Deviation from GameplayKit: this searches by branching on GKGameModel.copy() at every node
-// rather than by mutating one shared model via apply/unapplyGameModelUpdate — see GKGameModel's
-// documentation for why. Bit-identical move choice isn't guaranteed when multiple moves tie in
-// score (GameplayKit doesn't document its own tie-break rule); this implementation keeps the
-// first-seen move on a tie.
+/**
+ * Game AI that evaluates potential game states, scores them, and attempts to maximize its own
+ * score while minimizing its opponents', mirroring GameplayKit's `GKMinmaxStrategist`: minimax
+ * with alpha-beta pruning, generalized past two players by treating every player other than the
+ * one being searched for as a single adversary trying to minimize that player's score.
+ *
+ * Deviation from GameplayKit: this searches by branching on [GKGameModel.copy] at every node
+ * rather than by mutating one shared model via `apply`/`unapplyGameModelUpdate` — see
+ * [GKGameModel]'s documentation for why. Bit-identical move choice isn't guaranteed when multiple
+ * moves tie in score (GameplayKit doesn't document its own tie-break rule); this implementation
+ * keeps the first-seen move on a tie.
+ */
 public class GKMinmaxStrategist : GKStrategist {
     override var gameModel: GKGameModel? = null
     override var randomSource: GKRandom? = null
 
-    // How many plies (half-moves) to search ahead before falling back to GKGameModel.score.
+    /** How many plies (half-moves) to search ahead before falling back to [GKGameModel.score]. */
     public var maxLookAheadDepth: Int = 0
 
     override fun bestMoveForActivePlayer(): GKGameModelUpdate? {
@@ -22,15 +24,19 @@ public class GKMinmaxStrategist : GKStrategist {
         return bestMove(player)
     }
 
-    // Returns what the strategist indicates is the best move for `player`, regardless of whether
-    // `player` is the game model's current active player.
+    /**
+     * Returns what the strategist indicates is the best move for [player], regardless of whether
+     * [player] is the game model's current active player.
+     */
     public fun bestMove(player: GKGameModelPlayer): GKGameModelUpdate? {
         val model = gameModel ?: return null
         return search(model.copy(), player, maxLookAheadDepth, Bounds(Int.MIN_VALUE, Int.MAX_VALUE)).update
     }
 
-    // Returns a random move among the `numMovesToConsider` best moves available to `player`,
-    // ranked by the same search bestMove uses. Adds variety to an otherwise-deterministic AI.
+    /**
+     * Returns a random move among the [numMovesToConsider] best moves available to [player],
+     * ranked by the same search [bestMove] uses. Adds variety to an otherwise-deterministic AI.
+     */
     public fun randomMove(
         player: GKGameModelPlayer,
         numMovesToConsider: Int,

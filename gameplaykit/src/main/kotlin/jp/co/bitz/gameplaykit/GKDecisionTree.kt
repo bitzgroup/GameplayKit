@@ -2,35 +2,44 @@ package jp.co.bitz.gameplaykit
 
 import kotlin.math.log2
 
-// A tree of questions, answers, and actions used to drive AI decision-making, mirroring
-// GameplayKit's GKDecisionTree. Build a tree by branching off `rootNode` (see
-// GKDecisionNode.createBranch), then query it with findAction; or grow one automatically from a
-// set of training examples with the `examples`/`actions`/`attributes` constructor.
-//
-// Not implemented: GameplayKit's NSCoder/NSURL-based initializers and `export(to:)`. This library
-// has no NSCoding/archiving equivalent anywhere else either (see GKRuleSystem's fact model, which
-// is likewise plain in-memory state), so tree persistence is left to the host application.
+/**
+ * A tree of questions, answers, and actions used to drive AI decision-making, mirroring
+ * GameplayKit's `GKDecisionTree`. Build a tree by branching off [rootNode] (see
+ * [GKDecisionNode.createBranch]), then query it with [findAction]; or grow one automatically from
+ * a set of training examples with the `examples`/`actions`/`attributes` constructor.
+ *
+ * Not implemented: GameplayKit's `NSCoder`/`NSURL`-based initializers and `export(to:)`. This
+ * library has no `NSCoding`/archiving equivalent anywhere else either (see [GKRuleSystem]'s fact
+ * model, which is likewise plain in-memory state), so tree persistence is left to the host
+ * application.
+ */
 public class GKDecisionTree private constructor(
     public val rootNode: GKDecisionNode,
 ) {
-    // Creates a tree with a single root node asking about `attribute`; branch it out with
-    // `rootNode.createBranch(...)`.
+    /**
+     * Creates a tree with a single root node asking about [attribute]; branch it out with
+     * `rootNode.createBranch(...)`.
+     */
     public constructor(attribute: Any) : this(GKDecisionNode(attribute))
 
-    // Creates a tree by inductive learning (the classic ID3 algorithm: at each step, split on the
-    // attribute with the highest information gain) from a training data set. `examples[i]` is one
-    // training row, positionally matching `attributes`; `actions[i]` is that row's outcome.
-    // GameplayKit doesn't document its own ID3 variant's tie-breaking/pruning behavior, so this is
-    // contract-conformant (produces a tree consistent with the training data), not bit-identical.
+    /**
+     * Creates a tree by inductive learning (the classic ID3 algorithm: at each step, split on the
+     * attribute with the highest information gain) from a training data set. `examples[i]` is one
+     * training row, positionally matching `attributes`; `actions[i]` is that row's outcome.
+     * GameplayKit doesn't document its own ID3 variant's tie-breaking/pruning behavior, so this is
+     * contract-conformant (produces a tree consistent with the training data), not bit-identical.
+     */
     public constructor(examples: List<List<Any>>, actions: List<Any>, attributes: List<Any>) :
         this(buildTree(examples, actions, attributes))
 
-    // Used to resolve GKDecisionNode.createBranch(weight:attribute:) branches in findAction.
+    /** Used to resolve [GKDecisionNode.createBranch] weighted branches in [findAction]. */
     public var randomSource: GKRandomSource = GKRandomSource.sharedRandom()
 
-    // Walks the tree from the root, following whichever branch matches `answers`, until it
-    // reaches a leaf (a node with no branches), and returns that leaf's attribute as the chosen
-    // action. Returns null if a question node's branches don't cover the given answer.
+    /**
+     * Walks the tree from [rootNode], following whichever branch matches [answers], until it
+     * reaches a leaf (a node with no branches), and returns that leaf's attribute as the chosen
+     * action. Returns `null` if a question node's branches don't cover the given answer.
+     */
     public fun findAction(answers: Map<Any, Any>): Any? {
         var node = rootNode
         while (node.branches.isNotEmpty()) {
@@ -39,9 +48,11 @@ public class GKDecisionTree private constructor(
         return node.attribute
     }
 
-    // Renders the tree as indented text (`?` for question nodes, `-` for leaves/actions). Not
-    // part of GameplayKit's API — Apple exposes no tree introspection at all — added here since a
-    // Kotlin developer has no other way to inspect or debug a tree they've built.
+    /**
+     * Renders the tree as indented text (`?` for question nodes, `-` for leaves/actions). Not
+     * part of GameplayKit's API — Apple exposes no tree introspection at all — added here since a
+     * Kotlin developer has no other way to inspect or debug a tree they've built.
+     */
     public fun prettyPrint(): String = StringBuilder().also { appendNode(it, rootNode, 0) }.toString()
 
     private fun selectBranch(

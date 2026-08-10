@@ -3,9 +3,12 @@ package jp.co.bitz.gameplaykit
 import kotlin.math.floor
 import kotlin.math.sqrt
 
-// A GKNoiseSource whose output consists of concentric cylindrical shells around the Y axis,
-// appropriate for wood-grain textures, mirroring GameplayKit's GKCylindersNoiseSource.
+/**
+ * A [GKNoiseSource] whose output consists of concentric cylindrical shells around the Y axis,
+ * appropriate for wood-grain textures, mirroring GameplayKit's `GKCylindersNoiseSource`.
+ */
 public class GKCylindersNoiseSource(
+    /** How many cylindrical shells fit per unit of sample-space distance from the Y axis. */
     public var frequency: Double = 1.0,
 ) : GKNoiseSource() {
     override fun sample(position: Vector3): Double {

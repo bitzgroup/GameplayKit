@@ -4,16 +4,25 @@ import kotlin.math.floor
 import kotlin.math.sqrt
 import kotlin.random.Random
 
-// A GKNoiseSource whose output divides space into cells surrounding seed points, appropriate for
-// crystalline textures, mirroring GameplayKit's GKVoronoiNoiseSource. One randomly-displaced
-// feature point is placed per unit cell (scaled by `frequency`, jittered within the cell by
-// `displacement`); each sample reports either the distance to the nearest feature point
-// (`distanceEnabled`) or that feature's own pseudo-random value, both deterministic for a given
-// `seed`.
+/**
+ * A [GKNoiseSource] whose output divides space into cells surrounding seed points, appropriate
+ * for crystalline textures, mirroring GameplayKit's `GKVoronoiNoiseSource`. One
+ * randomly-displaced feature point is placed per unit cell (scaled by [frequency], jittered
+ * within the cell by [displacement]); each sample reports either the distance to the nearest
+ * feature point ([distanceEnabled]) or that feature's own pseudo-random value, both
+ * deterministic for a given [seed].
+ */
 public class GKVoronoiNoiseSource(
+    /** How many unit cells (each holding one feature point) fit per unit of sample-space distance. */
     public var frequency: Double = 1.0,
+    /** How far a feature point may be jittered from its cell's center, as a fraction of the cell size. */
     public var displacement: Double = 1.0,
+    /**
+     * When true, [sample] reports distance to the nearest feature point; when false, that
+     * feature's pseudo-random value.
+     */
     public var distanceEnabled: Boolean = false,
+    /** Seeds the per-cell feature-point placement, making the field reproducible. */
     public var seed: Int = 0,
 ) : GKNoiseSource() {
     override fun sample(position: Vector3): Double {

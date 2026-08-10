@@ -2,9 +2,18 @@ package jp.co.bitz.gameplaykit
 
 import kotlin.random.Random
 
+/**
+ * A [GKRandomSource] using the Mersenne Twister algorithm, mirroring GameplayKit's
+ * `GKMersenneTwisterRandomSource`. Backed by a reference MT19937-64 implementation, the same core
+ * generator used by C++11's `std::mt19937_64`, matching GameplayKit's documented algorithm
+ * compatibility. GameplayKit doesn't document how it derives `nextInt`/`nextUniform` from the raw
+ * generator output, so exact values aren't guaranteed to be bit-identical, only the same core
+ * algorithm.
+ */
 public class GKMersenneTwisterRandomSource(
     seed: Long = Random.Default.nextLong(),
 ) : GKRandomSource(MersenneTwister64(seed)) {
+    /** The seed this source was (re)initialized with. Setting it restarts the sequence from that seed. */
     public var seed: Long = seed
         set(value) {
             field = value

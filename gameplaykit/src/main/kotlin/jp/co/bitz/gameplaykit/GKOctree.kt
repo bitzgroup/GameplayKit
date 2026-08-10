@@ -1,39 +1,49 @@
 package jp.co.bitz.gameplaykit
 
-// A data structure that efficiently organizes elements by location in 3D space, mirroring
-// GameplayKit's GKOctree. Subdivides `boundingBox` into octants on demand, stopping once an octant's
-// half-extent would fall below `minimumCellSize`; an element is stored at the deepest octant that
-// fully contains it, so ancestor nodes may hold elements too large for their children.
-//
-// Deviates from Apple's `ElementType: AnyObject` constraint by allowing any non-null Kotlin type
-// (including value/data classes), consistent with this library's idiomatic-Kotlin design principle.
+/**
+ * A data structure that efficiently organizes elements by location in 3D space, mirroring
+ * GameplayKit's `GKOctree`. Subdivides [boundingBox] into octants on demand, stopping once an
+ * octant's half-extent would fall below [minimumCellSize]; an element is stored at the deepest
+ * octant that fully contains it, so ancestor nodes may hold elements too large for their
+ * children.
+ *
+ * Deviates from Apple's `ElementType: AnyObject` constraint by allowing any non-null Kotlin type
+ * (including value/data classes), consistent with this library's idiomatic-Kotlin design
+ * principle.
+ */
 public class GKOctree<ElementType : Any>(
     public val boundingBox: GKBox,
     public val minimumCellSize: Float,
 ) {
     private val root: GKOctreeNode = GKOctreeNode(boundingBox)
 
+    /** Adds [element] at [point], returning the node it was stored in. */
     public fun add(
         element: ElementType,
         point: Vector3,
     ): GKOctreeNode = addOctreeElement(root, minimumCellSize, element, GKBox(point, point))
 
+    /** Adds [element] covering [box], returning the node it was stored in. */
     public fun add(
         element: ElementType,
         box: GKBox,
     ): GKOctreeNode = addOctreeElement(root, minimumCellSize, element, box)
 
+    /** Returns every element registered at (or covering) [point]. */
     public fun elements(point: Vector3): List<ElementType> =
         octreeElementsAt<ElementType>(root, minimumCellSize, GKBox(point, point))
 
+    /** Returns every element whose registered region intersects [box]. */
     public fun elements(box: GKBox): List<ElementType> {
         val result = mutableListOf<ElementType>()
         collectIntersectingOctreeElements(root, box, result)
         return result
     }
 
+    /** Removes [element] from wherever it's stored in the tree, returning whether it was found. */
     public fun remove(element: ElementType): Boolean = removeFromOctree(root, element)
 
+    /** Removes [element] from [node] specifically, returning whether it was found there. */
     public fun remove(
         element: ElementType,
         node: GKOctreeNode,

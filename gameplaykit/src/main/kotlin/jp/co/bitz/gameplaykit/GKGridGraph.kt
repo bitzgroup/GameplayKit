@@ -1,8 +1,10 @@
 package jp.co.bitz.gameplaykit
 
-// A GKGraph in which movement is constrained to an integer grid, mirroring GameplayKit's GKGridGraph.
-// The full width x height grid of GKGridGraphNode is created and connected to its orthogonal (and,
-// if `diagonalsAllowed`, diagonal) neighbors up front.
+/**
+ * A [GKGraph] in which movement is constrained to an integer grid, mirroring GameplayKit's
+ * `GKGridGraph`. The full `gridWidth x gridHeight` grid of [GKGridGraphNode] is created and
+ * connected to its orthogonal (and, if [diagonalsAllowed], diagonal) neighbors up front.
+ */
 public class GKGridGraph(
     public val gridOrigin: Vector2Int,
     public val gridWidth: Int,
@@ -23,11 +25,14 @@ public class GKGridGraph(
         nodesByPosition.values.forEach { connectNodeToAdjacentNodes(it) }
     }
 
+    /** Returns the node at [position], or `null` if none is registered there. */
     public fun node(position: Vector2Int): GKGridGraphNode? = nodesByPosition[position]
 
-    // Registers `node` at its gridPosition and links it to whichever of its (up to 8) neighboring
-    // grid positions already have a node. Useful both for the initial grid build and for wiring in a
-    // node added later at a position outside the original width/height.
+    /**
+     * Registers [node] at its [GKGridGraphNode.gridPosition] and links it to whichever of its (up
+     * to 8) neighboring grid positions already have a node. Useful both for the initial grid build
+     * and for wiring in a node added later at a position outside the original width/height.
+     */
     public fun connectNodeToAdjacentNodes(node: GKGridGraphNode) {
         nodesByPosition[node.gridPosition] = node
         neighborOffsets().forEach { (dx, dy) ->
