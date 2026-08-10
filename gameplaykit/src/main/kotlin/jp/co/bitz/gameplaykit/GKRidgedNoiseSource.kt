@@ -2,13 +2,15 @@ package jp.co.bitz.gameplaykit
 
 import kotlin.math.abs
 
-// A GKCoherentNoiseSource whose output is similar to Perlin noise but with sharp boundaries,
-// mirroring GameplayKit's GKRidgedNoiseSource. Each octave folds its raw Perlin sample through
-// `(1 - abs(n))^2` (the classic "ridged multifractal" transform, producing sharp ridges at zero
-// crossings) before summing with a halving per-octave weight, normalized and rescaled to
-// [-1, 1]. GameplayKit doesn't document the exact ridged-multifractal formula it uses (real
-// libnoise-style implementations also apply a spectral weighting/gain step this omits), so this
-// is contract-conformant (sharper-edged than plain Perlin noise), not bit-identical.
+/**
+ * A [GKCoherentNoiseSource] whose output is similar to Perlin noise but with sharp boundaries,
+ * mirroring GameplayKit's `GKRidgedNoiseSource`. Each octave folds its raw Perlin sample through
+ * `(1 - abs(n))^2` (the classic "ridged multifractal" transform, producing sharp ridges at zero
+ * crossings) before summing with a halving per-octave weight, normalized and rescaled to
+ * `[-1, 1]`. GameplayKit doesn't document the exact ridged-multifractal formula it uses (real
+ * libnoise-style implementations also apply a spectral weighting/gain step this omits), so this
+ * is contract-conformant (sharper-edged than plain Perlin noise), not bit-identical.
+ */
 public class GKRidgedNoiseSource(
     frequency: Double = 1.0,
     octaveCount: Int = 6,

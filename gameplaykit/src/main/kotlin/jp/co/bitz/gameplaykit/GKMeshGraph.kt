@@ -1,15 +1,17 @@
 package jp.co.bitz.gameplaykit
 
-// Controls which kind of node GKMeshGraph.triangulate() creates for each walkable triangle,
-// mirroring GameplayKit's GKMeshGraphTriangulationMode option set (which can combine multiple
-// modes at once — represented here as a Kotlin Set for the same effect, idiomatically).
+/**
+ * Controls which kind of node [GKMeshGraph.triangulate] creates for each walkable triangle,
+ * mirroring GameplayKit's `GKMeshGraphTriangulationMode` option set (which can combine multiple
+ * modes at once — represented here as a Kotlin `Set` for the same effect, idiomatically).
+ */
 public enum class GKMeshGraphTriangulationMode {
     VERTICES,
     CENTERS,
     EDGES,
 }
 
-// A single triangle produced by GKMeshGraph.triangulate(), mirroring GameplayKit's GKTriangle.
+/** A single triangle produced by [GKMeshGraph.triangulate], mirroring GameplayKit's `GKTriangle`. */
 public data class GKTriangle(
     public val a: Vector2,
     public val b: Vector2,
@@ -22,52 +24,67 @@ public data class GKTriangle(
         get() = listOf(a, b, c)
 }
 
-// A GKGraph that fills the navigable space between polygon obstacles with a Delaunay-triangulated
-// mesh, mirroring GameplayKit's GKMeshGraph — a more space-efficient alternative to
-// GKObstacleGraph's visibility graph for large or densely-obstacled worlds. Call `addObstacles`
-// then `triangulate()` to (re)build the mesh; `triangulationMode` controls what `triangulate()`
-// populates the graph with.
-//
-// Deviation from GameplayKit: not generic over a custom node subclass (Apple's
-// `GKMeshGraph<NodeType>` lets you supply your own GKGraphNode2D subclass via a Class/Type
-// argument, using Obj-C's dynamic object creation); this always builds plain GKGraphNode2D nodes,
-// matching the non-generic choice already made for GKObstacleGraph in this port. Triangulation
-// uses the classic Bowyer-Watson algorithm (see DelaunayTriangulation.kt) since GameplayKit
-// doesn't document its own, so triangle boundaries are contract-conformant, not bit-identical.
+/**
+ * A [GKGraph] that fills the navigable space between polygon obstacles with a
+ * Delaunay-triangulated mesh, mirroring GameplayKit's `GKMeshGraph` — a more space-efficient
+ * alternative to [GKObstacleGraph]'s visibility graph for large or densely-obstacled worlds. Call
+ * [addObstacles] then [triangulate] to (re)build the mesh; [triangulationMode] controls what
+ * `triangulate()` populates the graph with.
+ *
+ * Deviation from GameplayKit: not generic over a custom node subclass (Apple's
+ * `GKMeshGraph<NodeType>` lets you supply your own `GKGraphNode2D` subclass via a Class/Type
+ * argument, using Obj-C's dynamic object creation); this always builds plain [GKGraphNode2D]
+ * nodes, matching the non-generic choice already made for [GKObstacleGraph] in this port.
+ * Triangulation uses the classic Bowyer-Watson algorithm (see `DelaunayTriangulation.kt`) since
+ * GameplayKit doesn't document its own, so triangle boundaries are contract-conformant, not
+ * bit-identical.
+ */
 public class GKMeshGraph(
     public val bufferRadius: Float,
     public val min: Vector2,
     public val max: Vector2,
 ) : GKGraph() {
+    /**
+     * Which kind of node [triangulate] populates the graph with. Defaults to
+     * [GKMeshGraphTriangulationMode.VERTICES].
+     */
     public var triangulationMode: Set<GKMeshGraphTriangulationMode> = setOf(GKMeshGraphTriangulationMode.VERTICES)
 
     private val mutableObstacles: MutableList<GKPolygonObstacle> = mutableListOf()
     private var walkableTriangles: List<GKTriangle> = emptyList()
     private var bufferedPolygons: List<List<Vector2>> = emptyList()
 
+    /** The obstacles currently registered with this graph. */
     public val obstacles: List<GKPolygonObstacle>
         get() = mutableObstacles.toList()
 
+    /** The number of walkable triangles produced by the last [triangulate] call. */
     public val triangleCount: Int
         get() = walkableTriangles.size
 
+    /** Returns the walkable triangle at [at] (`0 until triangleCount`). */
     public fun getTriangle(at: Int): GKTriangle = walkableTriangles[at]
 
+    /** Registers [newObstacles]. Call [triangulate] afterward to rebuild the mesh around them. */
     public fun addObstacles(newObstacles: List<GKPolygonObstacle>) {
         mutableObstacles.addAll(newObstacles)
     }
 
+    /** Unregisters [oldObstacles]. Call [triangulate] afterward to rebuild the mesh without them. */
     public fun removeObstacles(oldObstacles: List<GKPolygonObstacle>) {
         mutableObstacles.removeAll(oldObstacles.toSet())
     }
 
+    /** Unregisters every obstacle. Call [triangulate] afterward to rebuild the mesh without them. */
     public fun removeAllObstacles() {
         mutableObstacles.clear()
     }
 
-    // Rebuilds the mesh: triangulates the bounding box against the current obstacles, discards
-    // any triangle whose centroid falls inside a buffered obstacle, and repopulates the graph
-    // with nodes/connections per `triangulationMode`.
+    /**
+     * Rebuilds the mesh: triangulates the bounding box against the current obstacles, discards
+     * any triangle whose centroid falls inside a buffered obstacle, and repopulates the graph
+     * with nodes/connections per [triangulationMode].
+     */
     public fun triangulate() {
         remove(nodes)
         bufferedPolygons = mutableObstacles.map { bufferedPolygon(it.vertices, bufferRadius) }
@@ -80,8 +97,10 @@ public class GKMeshGraph(
         buildNodes()
     }
 
-    // Registers `node` (if not already in the graph) and connects it to every mesh node it has
-    // unobstructed line-of-sight to, mirroring GameplayKit's `connectNode(usingObstacles:)`.
+    /**
+     * Registers [node] (if not already in the graph) and connects it to every mesh node it has
+     * unobstructed line-of-sight to, mirroring GameplayKit's `connectNode(usingObstacles:)`.
+     */
     public fun connectNodeUsingObstacles(node: GKGraphNode2D) {
         if (node !in nodes) add(listOf(node))
         nodes.filterIsInstance<GKGraphNode2D>().forEach { other ->

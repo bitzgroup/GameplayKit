@@ -2,14 +2,16 @@ package jp.co.bitz.gameplaykit
 
 import kotlin.math.floor
 
-// Slices a finite, two-dimensional rectangle from a GKNoise object's infinite noise field,
-// mirroring GameplayKit's GKNoiseMap. `size`/`origin` describe the sampled rectangle in the
-// noise's own coordinate space; `sampleCount` is how many discrete grid points to divide it into.
-//
-// Deviation from GameplayKit: `seamless` here wraps grid coordinates modulo `sampleCount` so the
-// last row/column resamples the same positions as the first (a simple, tileable approximation);
-// GameplayKit doesn't document its own seamless-blending algorithm, so this is
-// contract-conformant (produces a tileable map), not bit-identical.
+/**
+ * Slices a finite, two-dimensional rectangle from a [GKNoise] object's infinite noise field,
+ * mirroring GameplayKit's `GKNoiseMap`. [size]/[origin] describe the sampled rectangle in the
+ * noise's own coordinate space; [sampleCount] is how many discrete grid points to divide it into.
+ *
+ * Deviation from GameplayKit: [seamless] here wraps grid coordinates modulo [sampleCount] so the
+ * last row/column resamples the same positions as the first (a simple, tileable approximation);
+ * GameplayKit doesn't document its own seamless-blending algorithm, so this is
+ * contract-conformant (produces a tileable map), not bit-identical.
+ */
 public class GKNoiseMap(
     private val noise: GKNoise,
     public val size: Vector2 = Vector2(1f, 1f),
@@ -17,15 +19,21 @@ public class GKNoiseMap(
     public val sampleCount: Vector2Int = Vector2Int(1, 1),
     public val seamless: Boolean = false,
 ) {
+    /**
+     * Creates a 1x1 map, sampling a single point of a zero-valued [GKNoise], mirroring
+     * GameplayKit's parameterless constructor.
+     */
     public constructor() : this(GKNoise())
 
     private val overrides: MutableMap<Vector2Int, Float> = mutableMapOf()
 
+    /** The noise value at grid coordinate [at], or an override set via [setValue] if one exists there. */
     public fun value(at: Vector2Int): Float {
         val coordinate = if (seamless) wrap(at) else at
         return overrides[coordinate] ?: sample(coordinate)
     }
 
+    /** Overrides the value at grid coordinate [at], replacing whatever [noise] would otherwise sample there. */
     public fun setValue(
         value: Float,
         at: Vector2Int,
@@ -33,7 +41,10 @@ public class GKNoiseMap(
         overrides[if (seamless) wrap(at) else at] = value
     }
 
-    // Bilinearly interpolates between the four grid points surrounding `at`.
+    /**
+     * Bilinearly interpolates between the four grid points surrounding [at], in the map's
+     * continuous coordinate space.
+     */
     public fun interpolatedValue(at: Vector2): Float {
         val gx = gridCoordinate(at.x, origin.x, size.x, sampleCount.x)
         val gy = gridCoordinate(at.y, origin.y, size.y, sampleCount.y)

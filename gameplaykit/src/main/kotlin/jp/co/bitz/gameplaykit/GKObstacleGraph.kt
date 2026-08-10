@@ -1,13 +1,16 @@
 package jp.co.bitz.gameplaykit
 
-// A GKGraph that builds a visibility graph around polygon obstacles, mirroring GameplayKit's
-// GKObstacleGraph: each obstacle's vertices are inflated outward by `bufferRadius` and turned into
-// GKGraphNode2D nodes, which are connected to every other node they have unobstructed line-of-sight
-// to. `connectNode` links an externally created node (typically a path start/goal) into that mesh.
-//
-// The vertex-offset used to apply `bufferRadius` assumes convex, non-self-intersecting obstacle
-// polygons; GameplayKit's own buffering algorithm is undocumented, so this is not guaranteed to be
-// bit-identical, only contract-conformant (paths stay at least `bufferRadius` from obstacle edges).
+/**
+ * A [GKGraph] that builds a visibility graph around polygon obstacles, mirroring GameplayKit's
+ * `GKObstacleGraph`: each obstacle's vertices are inflated outward by [bufferRadius] and turned
+ * into [GKGraphNode2D] nodes, which are connected to every other node they have unobstructed
+ * line-of-sight to. [connectNode] links an externally created node (typically a path start/goal)
+ * into that mesh.
+ *
+ * The vertex-offset used to apply [bufferRadius] assumes convex, non-self-intersecting obstacle
+ * polygons; GameplayKit's own buffering algorithm is undocumented, so this is not guaranteed to be
+ * bit-identical, only contract-conformant (paths stay at least [bufferRadius] from obstacle edges).
+ */
 public class GKObstacleGraph(
     obstacles: List<GKPolygonObstacle> = emptyList(),
     public val bufferRadius: Float = 0f,
@@ -16,6 +19,7 @@ public class GKObstacleGraph(
     private val bufferedPolygons: MutableMap<GKPolygonObstacle, List<Vector2>> = mutableMapOf()
     private val obstacleNodes: MutableMap<GKPolygonObstacle, List<GKGraphNode2D>> = mutableMapOf()
 
+    /** The obstacles currently registered with this graph. */
     public val obstacles: List<GKPolygonObstacle>
         get() = mutableObstacles.toList()
 
@@ -23,6 +27,7 @@ public class GKObstacleGraph(
         addObstacles(obstacles)
     }
 
+    /** Adds [newObstacles] to the graph and rebuilds the visibility connections around all obstacles. */
     public fun addObstacles(newObstacles: List<GKPolygonObstacle>) {
         newObstacles.forEach { obstacle ->
             mutableObstacles.add(obstacle)
@@ -35,6 +40,7 @@ public class GKObstacleGraph(
         reconnectAll()
     }
 
+    /** Removes [oldObstacles] from the graph and rebuilds the visibility connections around the rest. */
     public fun removeObstacles(oldObstacles: List<GKPolygonObstacle>) {
         oldObstacles.forEach { obstacle ->
             mutableObstacles.remove(obstacle)
@@ -44,14 +50,18 @@ public class GKObstacleGraph(
         reconnectAll()
     }
 
+    /** Removes every obstacle from the graph. */
     public fun removeAllObstacles() {
         removeObstacles(mutableObstacles.toList())
     }
 
+    /** The buffered [GKGraphNode2D] nodes generated for [obstacle]'s vertices. */
     public fun nodes(obstacle: GKPolygonObstacle): List<GKGraphNode2D> = obstacleNodes[obstacle].orEmpty()
 
-    // Registers `node` (if not already in the graph) and connects it to every existing node it has
-    // unobstructed line-of-sight to, given the current obstacles.
+    /**
+     * Registers [node] (if not already in the graph) and connects it to every existing node it
+     * has unobstructed line-of-sight to, given the current obstacles.
+     */
     public fun connectNode(node: GKGraphNode2D) {
         if (node !in nodes) add(listOf(node))
         nodes.filterIsInstance<GKGraphNode2D>().forEach { other ->

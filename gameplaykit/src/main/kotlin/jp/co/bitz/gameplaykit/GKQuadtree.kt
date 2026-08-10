@@ -1,39 +1,49 @@
 package jp.co.bitz.gameplaykit
 
-// A data structure that efficiently organizes elements by location in 2D space, mirroring
-// GameplayKit's GKQuadtree. Subdivides `boundingQuad` into quadrants on demand, stopping once a
-// quadrant's half-extent would fall below `minimumCellSize`; an element is stored at the deepest
-// quadrant that fully contains it, so ancestor nodes may hold elements too large for their children.
-//
-// Deviates from Apple's `ElementType: AnyObject` constraint by allowing any non-null Kotlin type
-// (including value/data classes), consistent with this library's idiomatic-Kotlin design principle.
+/**
+ * A data structure that efficiently organizes elements by location in 2D space, mirroring
+ * GameplayKit's `GKQuadtree`. Subdivides [boundingQuad] into quadrants on demand, stopping once a
+ * quadrant's half-extent would fall below [minimumCellSize]; an element is stored at the deepest
+ * quadrant that fully contains it, so ancestor nodes may hold elements too large for their
+ * children.
+ *
+ * Deviates from Apple's `ElementType: AnyObject` constraint by allowing any non-null Kotlin type
+ * (including value/data classes), consistent with this library's idiomatic-Kotlin design
+ * principle.
+ */
 public class GKQuadtree<ElementType : Any>(
     public val boundingQuad: GKQuad,
     public val minimumCellSize: Float,
 ) {
     private val root: GKQuadtreeNode = GKQuadtreeNode(boundingQuad)
 
+    /** Adds [element] at [point], returning the node it was stored in. */
     public fun add(
         element: ElementType,
         point: Vector2,
     ): GKQuadtreeNode = addQuadtreeElement(root, minimumCellSize, element, GKQuad(point, point))
 
+    /** Adds [element] covering [quad], returning the node it was stored in. */
     public fun add(
         element: ElementType,
         quad: GKQuad,
     ): GKQuadtreeNode = addQuadtreeElement(root, minimumCellSize, element, quad)
 
+    /** Returns every element registered at (or covering) [point]. */
     public fun elements(point: Vector2): List<ElementType> =
         quadtreeElementsAt<ElementType>(root, minimumCellSize, GKQuad(point, point))
 
+    /** Returns every element whose registered region intersects [quad]. */
     public fun elements(quad: GKQuad): List<ElementType> {
         val result = mutableListOf<ElementType>()
         collectIntersectingQuadtreeElements(root, quad, result)
         return result
     }
 
+    /** Removes [element] from wherever it's stored in the tree, returning whether it was found. */
     public fun remove(element: ElementType): Boolean = removeFromQuadtree(root, element)
 
+    /** Removes [element] from [node] specifically, returning whether it was found there. */
     public fun remove(
         element: ElementType,
         node: GKQuadtreeNode,

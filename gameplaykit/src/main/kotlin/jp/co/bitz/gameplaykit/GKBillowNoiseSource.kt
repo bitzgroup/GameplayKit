@@ -2,13 +2,16 @@ package jp.co.bitz.gameplaykit
 
 import kotlin.math.abs
 
-// A GKCoherentNoiseSource whose output is similar to Perlin noise but with more rounded features,
-// mirroring GameplayKit's GKBillowNoiseSource. Each octave folds its raw Perlin sample through
-// `abs(n) * 2 - 1` (the classic "billow" transform) before summing, weighted by
-// `persistence^octaveIndex` and normalized to stay within [-1, 1] regardless of octaveCount.
+/**
+ * A [GKCoherentNoiseSource] whose output is similar to Perlin noise but with more rounded
+ * features, mirroring GameplayKit's `GKBillowNoiseSource`. Each octave folds its raw Perlin
+ * sample through `abs(n) * 2 - 1` (the classic "billow" transform) before summing, weighted by
+ * `persistence^octaveIndex` and normalized to stay within `[-1, 1]` regardless of `octaveCount`.
+ */
 public class GKBillowNoiseSource(
     frequency: Double = 1.0,
     octaveCount: Int = 6,
+    /** How much each successive octave's amplitude shrinks by; lower means less high-frequency detail. */
     public var persistence: Double = 0.5,
     lacunarity: Double = 2.0,
     seed: Int = 0,

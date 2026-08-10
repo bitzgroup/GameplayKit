@@ -1,11 +1,14 @@
 package jp.co.bitz.gameplaykit
 
-// A GKCoherentNoiseSource that generates improved Perlin noise, mirroring GameplayKit's
-// GKPerlinNoiseSource. Each octave is weighted by `persistence^octaveIndex` and normalized so the
-// result stays within [-1, 1] regardless of octaveCount.
+/**
+ * A [GKCoherentNoiseSource] that generates improved Perlin noise, mirroring GameplayKit's
+ * `GKPerlinNoiseSource`. Each octave is weighted by `persistence^octaveIndex` and normalized so
+ * the result stays within `[-1, 1]` regardless of `octaveCount`.
+ */
 public class GKPerlinNoiseSource(
     frequency: Double = 1.0,
     octaveCount: Int = 6,
+    /** How much each successive octave's amplitude shrinks by; lower means less high-frequency detail. */
     public var persistence: Double = 0.5,
     lacunarity: Double = 2.0,
     seed: Int = 0,

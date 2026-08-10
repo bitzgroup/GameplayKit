@@ -2,8 +2,10 @@ package jp.co.bitz.gameplaykit
 
 import kotlin.math.sqrt
 
-// A GKGraphNode with a 2D floating-point position. Matches GameplayKit's default: cost and
-// estimatedCost both equal the straight-line (Euclidean) distance between positions.
+/**
+ * A [GKGraphNode] with a 2D floating-point position. Matches GameplayKit's default: [cost] and
+ * [estimatedCost] both equal the straight-line (Euclidean) distance between positions.
+ */
 public open class GKGraphNode2D(
     public var position: Vector2,
 ) : GKGraphNode() {

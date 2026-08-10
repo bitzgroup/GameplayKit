@@ -3,29 +3,33 @@ package jp.co.bitz.gameplaykit
 import kotlin.math.ln
 import kotlin.math.sqrt
 
-// A strategist that reaches a solution that is probably close to optimal in a deterministic
-// amount of time, mirroring GameplayKit's GKMonteCarloStrategist: Monte Carlo tree search with
-// the standard UCT (Upper Confidence bound applied to Trees) selection rule.
-//
-// Deviation from GameplayKit: Apple doesn't document its own UCT constant, rollout policy, or
-// tie-break rule, so this is contract-conformant (approaches the optimal move as `budget` grows),
-// not bit-identical. Random rollouts are capped at `maxPlayoutDepth` plies as a safety valve for
-// game models with no guaranteed terminal state within that horizon; GameplayKit exposes no such
-// cap because its own implementation detail here isn't documented either. Every reward is tracked
-// from the searching player's fixed perspective (1.0 = that player wins, 0.0 = they lose); nodes
-// reached by an opponent's move are selected to minimize that value rather than maximize it — the
-// same "every other player is a single adversary" generalization GKMinmaxStrategist uses — since
-// plain UCB1 would otherwise assume every player is cooperating to win for the searching player.
+/**
+ * A strategist that reaches a solution that is probably close to optimal in a deterministic
+ * amount of time, mirroring GameplayKit's `GKMonteCarloStrategist`: Monte Carlo tree search with
+ * the standard UCT (Upper Confidence bound applied to Trees) selection rule.
+ *
+ * Deviation from GameplayKit: Apple doesn't document its own UCT constant, rollout policy, or
+ * tie-break rule, so this is contract-conformant (approaches the optimal move as [budget] grows),
+ * not bit-identical. Random rollouts are capped at [maxPlayoutDepth] plies as a safety valve for
+ * game models with no guaranteed terminal state within that horizon; GameplayKit exposes no such
+ * cap because its own implementation detail here isn't documented either. Every reward is tracked
+ * from the searching player's fixed perspective (1.0 = that player wins, 0.0 = they lose); nodes
+ * reached by an opponent's move are selected to minimize that value rather than maximize it — the
+ * same "every other player is a single adversary" generalization [GKMinmaxStrategist] uses —
+ * since plain UCB1 would otherwise assume every player is cooperating to win for the searching
+ * player.
+ */
 public class GKMonteCarloStrategist : GKStrategist {
     override var gameModel: GKGameModel? = null
     override var randomSource: GKRandom? = null
 
-    // Number of playout iterations to run per bestMoveForActivePlayer() call.
+    /** Number of playout iterations to run per [bestMoveForActivePlayer] call. */
     public var budget: Int = 100
 
-    // The UCT exploration constant; higher favors exploring less-visited moves.
+    /** The UCT exploration constant; higher favors exploring less-visited moves. */
     public var explorationParameter: Double = sqrt(2.0)
 
+    /** Random rollouts stop after this many plies even if the game model has no terminal state within that horizon. */
     public var maxPlayoutDepth: Int = 200
 
     override fun bestMoveForActivePlayer(): GKGameModelUpdate? {
