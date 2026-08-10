@@ -149,16 +149,36 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Phase 10 — Noise (algorithmic core only)
 
-- [ ] `GKNoise` / `GKNoiseMap` — sampled noise field
-- [ ] `GKPerlinNoiseSource`
-- [ ] `GKRidgedNoiseSource`
-- [ ] `GKBillowNoiseSource`
-- [ ] `GKVoronoiNoiseSource`
-- [ ] `GKCheckerboardNoiseSource`
-- [ ] `GKCylindersNoiseSource`
-- [ ] `GKSpheresNoiseSource`
-- [ ] `GKConstantNoiseSource`
-- [ ] **Out of scope:** SceneKit terrain/geometry integration (no Android rendering equivalent)
+- [x] `GKNoise` — wraps a `GKNoiseSource` and composes it via `add`/`multiply`/`getMaximum`/
+      `getMinimum`/`raiseToPower`/`clamp`/`applyAbsoluteValue`/`invert`/`applyTurbulence`/
+      `displace`/`move`/`scale`/`rotate` (each mutates the instance in place, mirroring
+      GameplayKit's own "builder via mutation" GKNoise API) and sampled via `value(at:)`.
+      Deviation: positions are this library's existing single-precision `Vector3` rather than
+      GameplayKit's double-precision `vector_double3` — not worth a parallel vector type for one
+      API. Not implemented: the `gradientColors`-based constructor/property (`UIColor`/`NSColor`,
+      no Android equivalent) and `remapValuesToCurve`/`remapValuesToTerraces` (texture/curve
+      editing conveniences, rendering-adjacent rather than algorithmic core)
+- [x] `GKNoiseMap` — slices a finite 2D grid (`size`/`origin`/`sampleCount`) out of a `GKNoise`
+      field, `value(at:)`/`setValue(_:at:)`/`interpolatedValue(at:)` (bilinear). `seamless` wraps
+      grid coordinates modulo `sampleCount` (a simple tileable approximation — GameplayKit doesn't
+      document its own seamless-blending algorithm)
+- [x] `GKNoiseSource` (abstract base, no public sampling API of its own — matches GameplayKit) /
+      `GKCoherentNoiseSource` (abstract; `frequency`/`octaveCount`/`lacunarity`/`seed`, each
+      subclass sums `octaveCount` octaves of a shared Perlin core — Ken Perlin's reference
+      "improved noise" permutation-table algorithm, since GameplayKit doesn't document its own
+      noise internals)
+- [x] `GKPerlinNoiseSource` — classic fractal-sum Perlin noise, `persistence` per octave
+- [x] `GKRidgedNoiseSource` — `(1 - |noise|)^2` per octave (sharp ridges); GameplayKit doesn't
+      document its own ridged-multifractal formula (real libnoise-style implementations also apply
+      a spectral weighting/gain step this omits), so this is contract-conformant, not bit-identical
+- [x] `GKBillowNoiseSource` — `|noise| * 2 - 1` per octave (rounded features), `persistence`
+- [x] `GKVoronoiNoiseSource` — classic cell/feature-point (Worley) noise; `frequency`/
+      `displacement`/`distanceEnabled`/`seed`
+- [x] `GKCheckerboardNoiseSource` — `squareSize`
+- [x] `GKCylindersNoiseSource` — `frequency`
+- [x] `GKSpheresNoiseSource` — `frequency`
+- [x] `GKConstantNoiseSource` — `value`
+- [x] **Out of scope:** SceneKit terrain/geometry integration (no Android rendering equivalent)
 
 ## Phase 11 — Documentation & Samples
 

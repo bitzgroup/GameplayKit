@@ -10,6 +10,9 @@ complexity:
     # GKGoal's companion object mirrors GameplayKit's own ~12 GKGoal factory methods 1:1; that's a
     # deliberate, cohesive API surface, not poor organization.
     thresholdInObjects: 15
+    # GKNoise mirrors GameplayKit's own ~15-method GKNoise API (add/multiply/displace/clamp/...);
+    # same rationale as thresholdInObjects above, just on the class itself rather than a companion.
+    thresholdInClasses: 17
 
 comments:
   UndocumentedPublicClass:
