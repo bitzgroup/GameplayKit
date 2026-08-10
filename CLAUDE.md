@@ -16,11 +16,13 @@ Phase 5 (pathfinding: `GKGraphNode`/`GKGraphNode2D`/`GKGraphNode3D`, `GKGraph`,
 `GKAgentDelegate`, `GKPath`, `GKGoal`, `GKBehavior`), Phase 7 (rule systems: `GKRule`,
 `GKRuleSystem`), Phase 8 (decision trees: `GKDecisionNode`, `GKDecisionTree`), Phase 9 (game
 model AI: `GKGameModel`, `GKGameModelPlayer`, `GKGameModelUpdate`, `GKStrategist`,
-`GKMinmaxStrategist`, `GKMonteCarloStrategist`), and Phase 10 (noise: `GKNoise`, `GKNoiseMap`,
+`GKMinmaxStrategist`, `GKMonteCarloStrategist`), Phase 10 (noise: `GKNoise`, `GKNoiseMap`,
 `GKNoiseSource`/`GKCoherentNoiseSource` and their `GKPerlinNoiseSource`/`GKRidgedNoiseSource`/
 `GKBillowNoiseSource`/`GKVoronoiNoiseSource`/`GKCheckerboardNoiseSource`/
-`GKCylindersNoiseSource`/`GKSpheresNoiseSource`/`GKConstantNoiseSource` subclasses) are
-implemented and tested. See `docs/ROADMAP.md` for full progress.
+`GKCylindersNoiseSource`/`GKSpheresNoiseSource`/`GKConstantNoiseSource` subclasses), and Phase 11
+(documentation: KDoc on every public API surface, `docs/API_COMPATIBILITY.md`, and README usage
+examples per module) are implemented and tested. The full `docs/ROADMAP.md` plan is now complete;
+see that file for phase-by-phase detail.
 
 ## Intent
 

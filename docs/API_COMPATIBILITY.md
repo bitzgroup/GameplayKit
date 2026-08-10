@@ -66,7 +66,9 @@ Two deviation categories recur throughout and are called out once here rather th
 
 ## Spatial partitioning (`GKQuadtree`, `GKOctree`)
 
-- No deviations beyond the general conventions above.
+- Both relax Apple's `ElementType: AnyObject` constraint to Kotlin's `Any`, so value/data classes
+  can be stored directly rather than requiring a reference-type wrapper — consistent with this
+  library's idiomatic-Kotlin design principle.
 
 ## Pathfinding (`GKGraph`, `GKGridGraph`, `GKObstacleGraph`, `GKMeshGraph`)
 
