@@ -19,10 +19,22 @@ This project is under active development. Implemented so far:
 - **Randomization** — `GKRandom`, `GKRandomSource` and its subclasses
   (`GKLinearCongruentialRandomSource`, `GKMersenneTwisterRandomSource`, `GKARC4RandomSource`),
   `GKRandomDistribution` and its subclasses (`GKGaussianDistribution`, `GKShuffledDistribution`)
+- **Spatial partitioning** — `GKQuadtree`/`GKQuadtreeNode`, `GKOctree`/`GKOctreeNode`
+- **Pathfinding** — `GKGraphNode`/`GKGraphNode2D`/`GKGraphNode3D`, `GKGraph`,
+  `GKGridGraphNode`/`GKGridGraph`, `GKObstacle`/`GKCircleObstacle`/`GKPolygonObstacle`,
+  `GKObstacleGraph`, `GKMeshGraph`
+- **Agents, goals, and behaviors (steering)** — `GKAgent`/`GKAgent2D`/`GKAgent3D`,
+  `GKAgentDelegate`, `GKPath`, `GKGoal`, `GKBehavior`
+- **Rule systems** — `GKRule`, `GKRuleSystem`
+- **Decision trees** — `GKDecisionNode`, `GKDecisionTree`
+- **Game model AI (minmax / Monte Carlo)** — `GKGameModel`, `GKGameModelPlayer`,
+  `GKGameModelUpdate`, `GKStrategist`, `GKMinmaxStrategist`, `GKMonteCarloStrategist`
+- **Noise** — `GKNoise`, `GKNoiseMap`, and the `GKNoiseSource` hierarchy
+  (`GKPerlinNoiseSource`, `GKRidgedNoiseSource`, `GKBillowNoiseSource`, `GKVoronoiNoiseSource`,
+  `GKCheckerboardNoiseSource`, `GKCylindersNoiseSource`, `GKSpheresNoiseSource`,
+  `GKConstantNoiseSource`)
 
-Everything else — pathfinding, agents/goals/behaviors, rule systems, decision trees, minmax/Monte
-Carlo strategists, spatial partitioning, and noise — is tracked in
-[`docs/ROADMAP.md`](docs/ROADMAP.md).
+Documentation and a sample app are tracked in [`docs/ROADMAP.md`](docs/ROADMAP.md) (Phase 11).
 
 ## Requirements
 
