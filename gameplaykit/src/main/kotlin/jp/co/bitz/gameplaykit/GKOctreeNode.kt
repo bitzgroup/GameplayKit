@@ -2,9 +2,11 @@ package jp.co.bitz.gameplaykit
 
 private const val OCTANT_COUNT = 8
 
-// A node in a GKOctree. Automatically created and managed by GKOctree as elements are added and
-// removed; the public surface only exposes the node's bounding box, matching GameplayKit's opaque
-// node handle (GKOctreeNode carries no publicly documented behavior of its own).
+/**
+ * A node in a [GKOctree]. Automatically created and managed by `GKOctree` as elements are added
+ * and removed; the public surface only exposes the node's bounding box, matching GameplayKit's
+ * opaque node handle (`GKOctreeNode` carries no publicly documented behavior of its own).
+ */
 public class GKOctreeNode internal constructor(
     public val box: GKBox,
 ) {

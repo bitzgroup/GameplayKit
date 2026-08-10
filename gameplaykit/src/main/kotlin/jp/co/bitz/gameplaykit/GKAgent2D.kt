@@ -5,7 +5,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.time.Duration
 
-// A GKAgent whose movement is restricted to two dimensions, mirroring GameplayKit's GKAgent2D.
+/** A [GKAgent] whose movement is restricted to two dimensions, mirroring GameplayKit's `GKAgent2D`. */
 public open class GKAgent2D : GKAgent() {
     public var position: Vector2
         get() = Vector2(position3.x, position3.y)
@@ -19,7 +19,7 @@ public open class GKAgent2D : GKAgent() {
             velocity3 = Vector3(value.x, value.y, 0f)
         }
 
-    // Angle (radians) of the agent's current heading; kept in sync with velocity by each update().
+    /** Angle (radians) of the agent's current heading; kept in sync with velocity by each [update]. */
     public var rotation: Float
         get() = atan2(heading3.y, heading3.x)
         set(value) {

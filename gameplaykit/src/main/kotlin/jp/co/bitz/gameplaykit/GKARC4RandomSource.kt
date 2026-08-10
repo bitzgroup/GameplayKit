@@ -2,11 +2,18 @@ package jp.co.bitz.gameplaykit
 
 import kotlin.random.Random
 
+/**
+ * A [GKRandomSource] using the ARC4 (RC4) stream cipher, mirroring GameplayKit's
+ * `GKARC4RandomSource` — GameplayKit's default random source. Implements the key-scheduling
+ * algorithm (KSA) followed by the pseudo-random generation algorithm (PRGA), matching
+ * GameplayKit's documented algorithm.
+ */
 public class GKARC4RandomSource(
     seed: ByteArray = Random.Default.nextBytes(16),
 ) : GKRandomSource(Arc4Random(seed)) {
     private var arc4Random = random as Arc4Random
 
+    /** The seed this source was (re)initialized with. Setting it restarts the keystream from that seed. */
     public var seed: ByteArray = seed
         set(value) {
             field = value
@@ -14,8 +21,10 @@ public class GKARC4RandomSource(
             random = arc4Random
         }
 
-    // Skips ahead in the keystream, which helps avoid RC4's known statistical
-    // biases in its first output bytes ("RC4-drop[n]").
+    /**
+     * Skips [count] values ahead in the keystream ("RC4-drop[n]"), which helps avoid RC4's known
+     * statistical biases in its first output bytes.
+     */
     public fun dropValues(count: Int) {
         arc4Random.drop(count)
     }

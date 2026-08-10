@@ -1,6 +1,6 @@
 package jp.co.bitz.gameplaykit
 
-// An axis-aligned rectangular 3D region, mirroring GameplayKit's GKBox.
+/** An axis-aligned rectangular 3D region, mirroring GameplayKit's `GKBox`. */
 public data class GKBox(
     public val min: Vector3,
     public val max: Vector3,

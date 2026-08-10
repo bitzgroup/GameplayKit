@@ -1,6 +1,6 @@
 package jp.co.bitz.gameplaykit
 
-// An axis-aligned rectangular 2D region, mirroring GameplayKit's GKQuad.
+/** An axis-aligned rectangular 2D region, mirroring GameplayKit's `GKQuad`. */
 public data class GKQuad(
     public val min: Vector2,
     public val max: Vector2,
