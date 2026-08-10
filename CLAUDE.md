@@ -11,7 +11,8 @@ and its subclasses), Phase 4 (spatial partitioning: `GKQuadtree`/`GKQuadtreeNode
 `GKOctree`/`GKOctreeNode`, plus the `Vector2`/`Vector3`/`GKQuad`/`GKBox` value types they're built on),
 Phase 5 (pathfinding: `GKGraphNode`/`GKGraphNode2D`/`GKGraphNode3D`, `GKGraph`,
 `GKGridGraphNode`/`GKGridGraph`, `GKObstacle`/`GKCircleObstacle`/`GKPolygonObstacle`,
-`GKObstacleGraph`), Phase 6 (agents/goals/behaviors: `GKAgent`/`GKAgent2D`/`GKAgent3D`,
+`GKObstacleGraph`, `GKMeshGraph`/`GKTriangle`/`GKMeshGraphTriangulationMode`), Phase 6
+(agents/goals/behaviors: `GKAgent`/`GKAgent2D`/`GKAgent3D`,
 `GKAgentDelegate`, `GKPath`, `GKGoal`, `GKBehavior`), Phase 7 (rule systems: `GKRule`,
 `GKRuleSystem`), Phase 8 (decision trees: `GKDecisionNode`, `GKDecisionTree`), Phase 9 (game
 model AI: `GKGameModel`, `GKGameModelPlayer`, `GKGameModelUpdate`, `GKStrategist`,

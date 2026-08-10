@@ -81,6 +81,12 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
       `vertexCount`/`vertex(at:)` accessors
 - [x] `GKObstacleGraph` (visibility graph generated from obstacles, buffer radius); vertex-offset
       buffering assumes convex, non-self-intersecting obstacle polygons
+- [x] `GKMeshGraph` / `GKTriangle` / `GKMeshGraphTriangulationMode` — Delaunay-triangulated navmesh
+      graph generated from obstacles (an alternative to `GKObstacleGraph`, added after initially
+      being miscategorized as SceneKit-only — the real `GKMeshGraph` is purely 2D/obstacle-based,
+      just like `GKObstacleGraph`). Not generic over a custom node subclass (Apple's
+      `GKMeshGraph<NodeType>` supports one via Obj-C's dynamic class-based construction); triangulation
+      uses the classic Bowyer-Watson algorithm since GameplayKit doesn't document its own
 
 ## Phase 6 — Agents, Goals, and Behaviors (Steering)
 
@@ -190,6 +196,9 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 
 ## Explicitly Out of Scope
 
-- `GKScene` / SpriteKit-SceneKit scene binding (no Android equivalent renderer)
-- `GKMesh` / navmesh generation tied to SceneKit geometry
+- `GKScene` — associates GameplayKit entities/graphs with a SpriteKit `SKScene` (or SceneKit
+  scene); no Android equivalent renderer to bind to
+- (Previously listed here as "`GKMesh` / navmesh generation tied to SceneKit geometry" — that was
+  a misidentification. The real class is `GKMeshGraph`, and it's purely 2D/obstacle-based like
+  `GKObstacleGraph`, with no SceneKit dependency; it's implemented in Phase 5.)
 - Anything requiring Apple-only frameworks (Metal, SceneKit, SpriteKit) with no Android analog
