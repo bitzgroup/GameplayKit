@@ -39,6 +39,14 @@ internal class NimGameModel(
         activePlayerIndex = 1 - activePlayerIndex
     }
 
+    // A real inverse of apply(_:) is required now that both strategists mutate-and-backtrack a
+    // shared model instead of branching by copying — see GKGameModel's documentation.
+    override fun unapplyGameModelUpdate(gameModelUpdate: GKGameModelUpdate) {
+        val move = gameModelUpdate as NimMove
+        pile += move.amount
+        activePlayerIndex = 1 - activePlayerIndex
+    }
+
     // The pile is empty and it's `player`'s turn: whoever moved last (the other player) took the
     // last stone and won.
     override fun isWin(player: GKGameModelPlayer): Boolean = pile == 0 && player.playerId != activePlayerIndex

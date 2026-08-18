@@ -121,11 +121,21 @@ Two deviation categories recur throughout and are called out once here rather th
 
 ## Game model AI (`GKGameModel`, `GKMinmaxStrategist`, `GKMonteCarloStrategist`)
 
-- See "No `NSCopying`/`NSCoding` equivalents" above for `GKGameModel.copy()`. Both strategists
-  always branch the search tree by copying rather than by mutating one shared model via
-  `apply`/`unapplyGameModelUpdate`; `unapplyGameModelUpdate` is kept only for API parity and is
-  never called internally. Apple documents `GKMinmaxStrategist`'s own implementation as
-  backtracking via unapply for space efficiency, which this port does not attempt to replicate.
+- See "No `NSCopying`/`NSCoding` equivalents" above for `GKGameModel.copy()`, still required for
+  API parity even though neither strategist calls it internally (see the next point).
+- **Both strategists search by mutating one shared model in place — `apply` a candidate move,
+  recurse/roll out, `unapplyGameModelUpdate` it back off — matching Apple's own documented
+  `GKMinmaxStrategist` behavior exactly, rather than branching by copying at every search node.**
+  This was a deliberate reversal of this library's original design (which always branched by
+  copying, treating `unapplyGameModelUpdate` as dead API-parity-only surface); revisited and
+  changed after `bitzgroup/tic-tac-toe`'s iOS-first implementation order surfaced the concrete
+  downside: an app's `GKGameModel` written and tested only against this port's original
+  copy-branching behavior could ship with a broken `unapplyGameModelUpdate` that corrupts search on
+  Apple's real framework, since only Apple's real `GKMinmaxStrategist` ever exercised it. Matching
+  Apple's real strategy here means a `GKGameModel` correct against this library is now correct
+  against Apple's real one too. **Consequence for `GKGameModel` implementations: `apply` and
+  `unapplyGameModelUpdate` must be true inverses of each other** — the previous "no-op is fine, it's
+  never called" guidance no longer holds; see `GKGameModel`'s own KDoc.
 - `GKMinmaxStrategist.bestMove(player:)` (any player, not just the active one) and
   `randomMove(player:numMovesToConsider:)` are implemented as documented, but exact tie-break/move
   choice on equal scores isn't specified by Apple; this implementation keeps the first-seen move.

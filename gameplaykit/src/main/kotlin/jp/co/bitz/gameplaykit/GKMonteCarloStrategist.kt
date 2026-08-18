@@ -8,6 +8,14 @@ import kotlin.math.sqrt
  * amount of time, mirroring GameplayKit's `GKMonteCarloStrategist`: Monte Carlo tree search with
  * the standard UCT (Upper Confidence bound applied to Trees) selection rule.
  *
+ * Matches Apple's own documented implementation strategy — see [GKMinmaxStrategist]'s
+ * documentation, which explains this in full: search mutates the one shared [gameModel] in place
+ * (`apply` a move while walking down the tree or rolling out a playout, `unapplyGameModelUpdate`
+ * it back off again afterward) rather than branching by calling [GKGameModel.copy] at every node.
+ * [GKGameModel] implementations *must* provide a correct, real inverse in
+ * `unapplyGameModelUpdate` for this search to be sound. By the time [bestMoveForActivePlayer]
+ * returns, [gameModel] is back in the exact state it was in when called.
+ *
  * Deviation from GameplayKit: Apple doesn't document its own UCT constant, rollout policy, or
  * tie-break rule, so this is contract-conformant (approaches the optimal move as [budget] grows),
  * not bit-identical. Random rollouts are capped at [maxPlayoutDepth] plies as a safety valve for
@@ -39,23 +47,35 @@ public class GKMonteCarloStrategist : GKStrategist {
             null
         } else {
             val source = randomSource ?: GKRandomSource.sharedRandom()
-            val root = Node(model.copy(), parent = null, update = null, moverIsForPlayer = true)
+            val root = Node(parent = null, update = null, moverIsForPlayer = true)
 
             repeat(budget) {
-                val leaf = select(root)
-                val expanded = expand(leaf, player, source)
-                val reward = simulate(expanded.model, player, source)
+                // Moves applied to `model` this iteration while walking select→expand, in
+                // root-to-leaf order — unwound (unapplied, in reverse) once backpropagation is
+                // done, so `model` is back at the root position before the next iteration.
+                val path = mutableListOf<Node>()
+                val leaf = select(root, model, path)
+                val expanded = expand(leaf, model, player, source, path)
+                val reward = simulate(model, player, source)
                 backpropagate(expanded, reward)
+                path.asReversed().forEach { model.unapplyGameModelUpdate(checkNotNull(it.update)) }
             }
 
             root.children.maxByOrNull { it.visits }?.update
         }
     }
 
-    private fun select(start: Node): Node {
-        var node = start
-        while (node.untried.isEmpty() && node.children.isNotEmpty()) {
-            node = node.children.maxByOrNull { uct(it, node.visits) } ?: break
+    private fun select(
+        root: Node,
+        model: GKGameModel,
+        path: MutableList<Node>,
+    ): Node {
+        var node = root
+        while (node.untriedMoves(model).isEmpty() && node.children.isNotEmpty()) {
+            val next = node.children.maxByOrNull { uct(it, node.visits) } ?: break
+            model.apply(checkNotNull(next.update))
+            path.add(next)
+            node = next
         }
         return node
     }
@@ -76,43 +96,52 @@ public class GKMonteCarloStrategist : GKStrategist {
 
     private fun expand(
         node: Node,
+        model: GKGameModel,
         forPlayer: GKGameModelPlayer,
         source: GKRandom,
+        path: MutableList<Node>,
     ): Node {
-        if (node.untried.isEmpty()) return node
+        val untried = node.untriedMoves(model)
+        if (untried.isEmpty()) return node
 
-        val update = node.untried.removeAt(source.nextInt(node.untried.size))
-        val mover = node.model.activePlayer
-        val branch = node.model.copy()
-        branch.apply(update)
-        val child = Node(branch, node, update, moverIsForPlayer = mover?.playerId == forPlayer.playerId)
+        val update = untried.removeAt(source.nextInt(untried.size))
+        val mover = model.activePlayer
+        model.apply(update)
+        val child = Node(node, update, moverIsForPlayer = mover?.playerId == forPlayer.playerId)
         node.children.add(child)
+        path.add(child)
         return child
     }
 
     private fun simulate(
-        start: GKGameModel,
+        model: GKGameModel,
         forPlayer: GKGameModelPlayer,
         source: GKRandom,
     ): Double {
-        val model = start.copy()
+        // Self-contained: every move this random rollout applies to `model` is unapplied again
+        // before returning, regardless of the persistent select/expand `path` — a playout is
+        // thrown away immediately after scoring it, never added to the tree.
+        val playedMoves = mutableListOf<GKGameModelUpdate>()
         var depth = 0
         var reward: Double? = null
 
         while (reward == null && depth < maxPlayoutDepth) {
-            reward = playoutStep(model, forPlayer, source)
+            reward = playoutStep(model, forPlayer, source, playedMoves)
             depth++
         }
 
+        playedMoves.asReversed().forEach { model.unapplyGameModelUpdate(it) }
         return reward ?: 0.5
     }
 
     // Advances one ply of a random playout and returns the terminal reward once the game ends
-    // (a win/loss for `forPlayer`, or no legal move left), or null to keep playing.
+    // (a win/loss for `forPlayer`, or no legal move left), or null to keep playing. Every applied
+    // move is recorded in `playedMoves` so `simulate` can unapply the whole rollout afterward.
     private fun playoutStep(
         model: GKGameModel,
         forPlayer: GKGameModelPlayer,
         source: GKRandom,
+        playedMoves: MutableList<GKGameModelUpdate>,
     ): Double? {
         val player = model.activePlayer
         val updates = player?.let { model.gameModelUpdates(it) }
@@ -121,7 +150,9 @@ public class GKMonteCarloStrategist : GKStrategist {
             model.isLoss(forPlayer) -> 0.0
             updates.isNullOrEmpty() -> 0.5
             else -> {
-                model.apply(updates[source.nextInt(updates.size)])
+                val move = updates[source.nextInt(updates.size)]
+                model.apply(move)
+                playedMoves.add(move)
                 null
             }
         }
@@ -139,11 +170,13 @@ public class GKMonteCarloStrategist : GKStrategist {
         }
     }
 
-    // `untried` is the set of legal moves not yet expanded into a child, seeded once (lazily)
-    // from the game model's own list so later comparisons never depend on GKGameModelUpdate
-    // implementing equals/hashCode (the same objects flow from `untried` into `children`).
+    // `untried` is the set of legal moves not yet expanded into a child. Unlike when each node
+    // held its own copied model, there's only ever one shared `model` now, so this can only be
+    // computed correctly the moment `model` actually sits at this node's position — which is
+    // exactly when `untriedMoves` is first called on it (from `select`/`expand`, always right
+    // after navigating here) — so it's filled lazily on that first call and cached from then on,
+    // rather than eagerly at construction time.
     private class Node(
-        val model: GKGameModel,
         val parent: Node?,
         val update: GKGameModelUpdate?,
         val moverIsForPlayer: Boolean,
@@ -151,8 +184,15 @@ public class GKMonteCarloStrategist : GKStrategist {
         var visits: Int = 0
         var totalReward: Double = 0.0
         val children: MutableList<Node> = mutableListOf()
-        val untried: MutableList<GKGameModelUpdate> by lazy {
-            (model.activePlayer?.let { model.gameModelUpdates(it) } ?: emptyList()).toMutableList()
+        private var untried: MutableList<GKGameModelUpdate>? = null
+
+        fun untriedMoves(model: GKGameModel): MutableList<GKGameModelUpdate> {
+            var moves = untried
+            if (moves == null) {
+                moves = (model.activePlayer?.let { model.gameModelUpdates(it) } ?: emptyList()).toMutableList()
+                untried = moves
+            }
+            return moves
         }
     }
 }
