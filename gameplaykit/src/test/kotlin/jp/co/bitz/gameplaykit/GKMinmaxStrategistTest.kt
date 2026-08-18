@@ -58,6 +58,24 @@ class GKMinmaxStrategistTest {
         assertEquals(2, move?.amount)
     }
 
+    // This is the direct regression test for mutate-and-backtrack search: it fails if
+    // unapplyGameModelUpdate (in either GKMinmaxStrategist or NimGameModel) isn't a true inverse
+    // of apply — see GKGameModel's documentation and docs/API_COMPATIBILITY.md.
+    @Test
+    fun `bestMoveForActivePlayer leaves the game model exactly as it found it`() {
+        val model = NimGameModel(pile = 10)
+        val strategist =
+            GKMinmaxStrategist().apply {
+                gameModel = model
+                maxLookAheadDepth = 10
+            }
+
+        strategist.bestMoveForActivePlayer()
+
+        assertEquals(10, model.pile)
+        assertEquals(0, model.activePlayerIndex)
+    }
+
     @Test
     fun `randomMove only ever returns one of the numMovesToConsider best moves`() {
         val model = NimGameModel(pile = 10)
