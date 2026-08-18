@@ -6,11 +6,16 @@ package jp.co.bitz.gameplaykit
  * with alpha-beta pruning, generalized past two players by treating every player other than the
  * one being searched for as a single adversary trying to minimize that player's score.
  *
- * Deviation from GameplayKit: this searches by branching on [GKGameModel.copy] at every node
- * rather than by mutating one shared model via `apply`/`unapplyGameModelUpdate` — see
- * [GKGameModel]'s documentation for why. Bit-identical move choice isn't guaranteed when multiple
- * moves tie in score (GameplayKit doesn't document its own tie-break rule); this implementation
- * keeps the first-seen move on a tie.
+ * Matches Apple's own documented implementation strategy: this searches by mutating the one
+ * shared [gameModel] in place — `apply` a candidate move, recurse, then
+ * `unapplyGameModelUpdate` it back off before trying the next one — rather than branching by
+ * calling [GKGameModel.copy] at every node. [GKGameModel] implementations *must* provide a
+ * correct, real inverse in `unapplyGameModelUpdate`; a no-op there (fine for a `GKGameModel` never
+ * used with a strategist) silently corrupts the search here. By the time [bestMoveForActivePlayer]/
+ * [bestMove]/[randomMove] returns, [gameModel] is back in the exact state it was in when called —
+ * every applied move is unapplied again before returning. See [GKGameModel]'s documentation.
+ * Bit-identical move choice isn't guaranteed when multiple moves tie in score (GameplayKit doesn't
+ * document its own tie-break rule); this implementation keeps the first-seen move on a tie.
  */
 public class GKMinmaxStrategist : GKStrategist {
     override var gameModel: GKGameModel? = null
@@ -30,7 +35,7 @@ public class GKMinmaxStrategist : GKStrategist {
      */
     public fun bestMove(player: GKGameModelPlayer): GKGameModelUpdate? {
         val model = gameModel ?: return null
-        return search(model.copy(), player, maxLookAheadDepth, Bounds(Int.MIN_VALUE, Int.MAX_VALUE)).update
+        return search(model, player, maxLookAheadDepth, Bounds(Int.MIN_VALUE, Int.MAX_VALUE)).update
     }
 
     /**
@@ -61,9 +66,11 @@ public class GKMinmaxStrategist : GKStrategist {
         player: GKGameModelPlayer,
         update: GKGameModelUpdate,
     ): Int {
-        val branch = model.copy()
-        branch.apply(update)
-        return search(branch, player, maxOf(maxLookAheadDepth - 1, 0), Bounds(Int.MIN_VALUE, Int.MAX_VALUE)).score
+        model.apply(update)
+        val score =
+            search(model, player, maxOf(maxLookAheadDepth - 1, 0), Bounds(Int.MIN_VALUE, Int.MAX_VALUE)).score
+        model.unapplyGameModelUpdate(update)
+        return score
     }
 
     private data class Result(val update: GKGameModelUpdate?, val score: Int)
@@ -120,9 +127,9 @@ public class GKMinmaxStrategist : GKStrategist {
         var best: Result? = null
 
         for (update in state.updates) {
-            val branch = state.model.copy()
-            branch.apply(update)
-            val score = search(branch, state.forPlayer, state.depth - 1, Bounds(alpha, beta)).score
+            state.model.apply(update)
+            val score = search(state.model, state.forPlayer, state.depth - 1, Bounds(alpha, beta)).score
+            state.model.unapplyGameModelUpdate(update)
 
             val better = best == null || (if (maximizing) score > best.score else score < best.score)
             if (better) best = Result(update, score)

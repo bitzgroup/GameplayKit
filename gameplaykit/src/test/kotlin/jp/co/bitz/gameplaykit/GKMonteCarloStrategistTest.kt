@@ -1,6 +1,7 @@
 package jp.co.bitz.gameplaykit
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -26,6 +27,25 @@ class GKMonteCarloStrategistTest {
 
         assertNotNull(move)
         assertTrue(move.amount in 1..3)
+    }
+
+    // This is the direct regression test for mutate-and-backtrack search: it fails if
+    // unapplyGameModelUpdate (in either GKMonteCarloStrategist or NimGameModel) isn't a true
+    // inverse of apply — see GKGameModel's documentation and docs/API_COMPATIBILITY.md.
+    @Test
+    fun `bestMoveForActivePlayer leaves the game model exactly as it found it`() {
+        val model = NimGameModel(pile = 10)
+        val strategist =
+            GKMonteCarloStrategist().apply {
+                gameModel = model
+                budget = 200
+                randomSource = GKLinearCongruentialRandomSource(seed = 3L)
+            }
+
+        strategist.bestMoveForActivePlayer()
+
+        assertEquals(10, model.pile)
+        assertEquals(0, model.activePlayerIndex)
     }
 
     // MCTS is probabilistic, so a single run isn't asserted against the textbook-optimal move

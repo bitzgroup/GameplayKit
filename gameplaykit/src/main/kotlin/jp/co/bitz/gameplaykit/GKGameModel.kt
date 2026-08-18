@@ -6,13 +6,22 @@ package jp.co.bitz.gameplaykit
  * use only this interface (plus [GKGameModelPlayer]/[GKGameModelUpdate]) to search for a good
  * move, independent of what the game actually is.
  *
- * Deviation from GameplayKit: [copy] here (this library's stand-in for `NSCopying`, which doesn't
- * exist in Kotlin) must return an independent deep copy — mutating the copy must never affect the
- * original. Both strategists in this library always branch the search tree by copying rather than
- * by calling [apply] then [unapplyGameModelUpdate] to backtrack, so a correct [copy] is what
- * keeps the search sound; [unapplyGameModelUpdate] is kept only for API parity and is never called
- * internally (Apple documents `GKMinMaxStrategist`'s own implementation as backtracking via
- * unapply for space efficiency, which this port does not attempt to replicate).
+ * **[apply]/[unapplyGameModelUpdate] must be true inverses of each other** — this is a hard
+ * requirement, not just good practice, matching Apple's own documented `GKMinmaxStrategist`
+ * behavior: both strategists in this library search by mutating the one shared model instance
+ * handed to them — `apply` a candidate move, recurse/roll out, `unapplyGameModelUpdate` it back
+ * off before trying the next one — rather than branching by calling [copy] at every search node.
+ * A [unapplyGameModelUpdate] left as the default no-op below is only safe for a `GKGameModel`
+ * that's never handed to [GKMinmaxStrategist]/[GKMonteCarloStrategist]; doing so anyway silently
+ * corrupts their search instead of failing loudly. See [GKMinmaxStrategist]'s documentation for
+ * the full explanation, including why this library settled on mutate-and-backtrack over
+ * copy-branching despite the extra implementation burden it places on [GKGameModel] authors.
+ *
+ * [copy] (this library's stand-in for `NSCopying`, which doesn't exist in Kotlin) must still
+ * return an independent deep copy — mutating the copy must never affect the original — even
+ * though neither strategist calls it internally anymore: it (along with [setGameModel]) remains
+ * part of this protocol for API parity with Apple's own `GKGameModel`/`NSCopying`, and for
+ * general-purpose use by callers (e.g. snapshotting a state before handing it to a strategist).
  */
 public interface GKGameModel {
     /** Every player in the game, or `null` if the game has no player concept. */
@@ -42,6 +51,10 @@ public interface GKGameModel {
     /** Whether this state is a loss for [player]. `false` by default. */
     public fun isLoss(player: GKGameModelPlayer): Boolean = false
 
-    /** Reverses the effect of [apply]\([gameModelUpdate]\). No-op by default; see the class-level deviation note. */
+    /**
+     * Reverses the effect of [apply]\([gameModelUpdate]\). No-op by default — override this with
+     * a true inverse if this model is ever searched by [GKMinmaxStrategist]/
+     * [GKMonteCarloStrategist]; see the class-level documentation above.
+     */
     public fun unapplyGameModelUpdate(gameModelUpdate: GKGameModelUpdate) {}
 }

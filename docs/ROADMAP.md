@@ -133,13 +133,16 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 ## Phase 9 — Game Model AI (Minmax / Monte Carlo)
 
 - [x] `GKGameModel` — interface for turn-based game state (`players`, `activePlayer`, `copy`,
-      `setGameModel`, `gameModelUpdates`, `apply`; optional `score`/`isWin`/`isLoss`/
-      `unapplyGameModelUpdate` default to `0`/`false`/`false`/no-op). `copy()` stands in for
-      GameplayKit's `NSCopying` conformance (no Kotlin equivalent) and must be a true deep copy:
-      both strategists below branch their search by copying rather than by mutating one shared
-      model via `apply`/`unapplyGameModelUpdate`, so `unapplyGameModelUpdate` is kept only for API
-      parity and is never called internally — GameplayKit documents its own `GKMinmaxStrategist`
-      as backtracking via unapply for space efficiency, which this port doesn't attempt to match
+      `setGameModel`, `gameModelUpdates`, `apply`; optional `score`/`isWin`/`isLoss` default to
+      `0`/`false`/`false`). `copy()` stands in for GameplayKit's `NSCopying` conformance (no Kotlin
+      equivalent) and must be a true deep copy. **`apply`/`unapplyGameModelUpdate` must be true
+      inverses of each other** — both strategists below mutate one shared model in place during
+      search rather than branching by copying at every node, matching Apple's own documented
+      `GKMinmaxStrategist` behavior exactly (revised post-`v0.1.0`; originally this port always
+      branched by copying and left `unapplyGameModelUpdate` an unused no-op — reversed after
+      `bitzgroup/tic-tac-toe`'s iOS-first implementation order showed that choice lets a
+      `GKGameModel` correct against this port ship with a broken `unapplyGameModelUpdate` that only
+      breaks on Apple's real framework. See `docs/API_COMPATIBILITY.md`)
 - [x] `GKGameModelPlayer` — interface for a player (`playerId`)
 - [x] `GKGameModelUpdate` — interface for a move (`value`)
 - [x] `GKStrategist` — common strategist contract (`gameModel`, `randomSource`,
