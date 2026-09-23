@@ -123,19 +123,31 @@ Two deviation categories recur throughout and are called out once here rather th
 
 - See "No `NSCopying`/`NSCoding` equivalents" above for `GKGameModel.copy()`, still required for
   API parity even though neither strategist calls it internally (see the next point).
-- **Both strategists search by mutating one shared model in place — `apply` a candidate move,
-  recurse/roll out, `unapplyGameModelUpdate` it back off — matching Apple's own documented
+- **`GKMinmaxStrategist` searches by mutating one shared model in place — `apply` a candidate move,
+  recurse, `unapplyGameModelUpdate` it back off — matching Apple's own documented
   `GKMinmaxStrategist` behavior exactly, rather than branching by copying at every search node.**
   This was a deliberate reversal of this library's original design (which always branched by
   copying, treating `unapplyGameModelUpdate` as dead API-parity-only surface); revisited and
   changed after `bitzgroup/tic-tac-toe`'s iOS-first implementation order surfaced the concrete
   downside: an app's `GKGameModel` written and tested only against this port's original
   copy-branching behavior could ship with a broken `unapplyGameModelUpdate` that corrupts search on
-  Apple's real framework, since only Apple's real `GKMinmaxStrategist` ever exercised it. Matching
-  Apple's real strategy here means a `GKGameModel` correct against this library is now correct
-  against Apple's real one too. **Consequence for `GKGameModel` implementations: `apply` and
-  `unapplyGameModelUpdate` must be true inverses of each other** — the previous "no-op is fine, it's
-  never called" guidance no longer holds; see `GKGameModel`'s own KDoc.
+  Apple's real framework, since only Apple's real `GKMinmaxStrategist` ever exercised it (confirmed
+  by an on-device crash). Matching Apple's real strategy here means a `GKGameModel` correct against
+  this library is now correct against Apple's real one too. **Consequence for `GKGameModel`
+  implementations: `apply` and `unapplyGameModelUpdate` must be true inverses of each other for any
+  model searched by `GKMinmaxStrategist`** — see `GKGameModel`'s own KDoc.
+- **`GKMonteCarloStrategist` still searches by branching — calling `copy()` at every tree node —
+  and does not require `unapplyGameModelUpdate` at all.** This was briefly unified with
+  `GKMinmaxStrategist`'s mutate-and-backtrack approach too (for symmetry, on the assumption that
+  the `GKMinmaxStrategist` finding above would generalize), then reverted once that assumption was
+  checked directly: `bitzgroup/tic-tac-toe`'s `GKMonteCarloUnapplyCompatibilityTests` ran a
+  `GKGameModel` with a no-op `unapplyGameModelUpdate` against Apple's real `GKMonteCarloStrategist`
+  on-device (iOS Simulator, real `GameplayKit.framework`) and found it searches correctly, falling
+  back to `copy(with:)`-based branching exactly as developer.apple.com's
+  `unapplyGameModelUpdate(_:)` page documents for strategists in general — the behavior
+  `GKMinmaxStrategist` turned out to be a documented exception to, not the norm. A `GKGameModel`
+  only ever searched by `GKMonteCarloStrategist` can safely leave `unapplyGameModelUpdate` as the
+  default no-op.
 - `GKMinmaxStrategist.bestMove(player:)` (any player, not just the active one) and
   `randomMove(player:numMovesToConsider:)` are implemented as documented, but exact tie-break/move
   choice on equal scores isn't specified by Apple; this implementation keeps the first-seen move.

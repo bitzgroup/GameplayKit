@@ -136,13 +136,18 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
       `setGameModel`, `gameModelUpdates`, `apply`; optional `score`/`isWin`/`isLoss` default to
       `0`/`false`/`false`). `copy()` stands in for GameplayKit's `NSCopying` conformance (no Kotlin
       equivalent) and must be a true deep copy. **`apply`/`unapplyGameModelUpdate` must be true
-      inverses of each other** — both strategists below mutate one shared model in place during
-      search rather than branching by copying at every node, matching Apple's own documented
-      `GKMinmaxStrategist` behavior exactly (revised post-`v0.1.0`; originally this port always
-      branched by copying and left `unapplyGameModelUpdate` an unused no-op — reversed after
+      inverses of each other for `GKMinmaxStrategist`** — it mutates one shared model in place
+      during search rather than branching by copying at every node, matching Apple's own
+      documented `GKMinmaxStrategist` behavior exactly (revised post-`v0.1.0`; originally this port
+      always branched by copying and left `unapplyGameModelUpdate` an unused no-op — reversed after
       `bitzgroup/tic-tac-toe`'s iOS-first implementation order showed that choice lets a
       `GKGameModel` correct against this port ship with a broken `unapplyGameModelUpdate` that only
-      breaks on Apple's real framework. See `docs/API_COMPATIBILITY.md`)
+      breaks on Apple's real framework, confirmed by an on-device crash). `GKMonteCarloStrategist`
+      was briefly unified with the same mutate-and-backtrack approach for symmetry, then reverted
+      back to copy-branching once that assumption was checked directly against Apple's real
+      `GKMonteCarloStrategist` on-device and found unnecessary — a `GKGameModel` searched only by
+      `GKMonteCarloStrategist` can leave `unapplyGameModelUpdate` as the default no-op. See
+      `docs/API_COMPATIBILITY.md`
 - [x] `GKGameModelPlayer` — interface for a player (`playerId`)
 - [x] `GKGameModelUpdate` — interface for a move (`value`)
 - [x] `GKStrategist` — common strategist contract (`gameModel`, `randomSource`,
