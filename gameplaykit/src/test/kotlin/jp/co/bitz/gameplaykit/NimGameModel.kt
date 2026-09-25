@@ -39,8 +39,10 @@ internal class NimGameModel(
         activePlayerIndex = 1 - activePlayerIndex
     }
 
-    // A real inverse of apply(_:) is required now that both strategists mutate-and-backtrack a
-    // shared model instead of branching by copying — see GKGameModel's documentation.
+    // A real inverse of apply(_:) is required since this fixture is also searched by
+    // GKMinmaxStrategist, which mutates-and-backtracks a shared model instead of branching by
+    // copying — see GKGameModel's documentation. GKMonteCarloStrategist doesn't need this (it
+    // always branches by copying), but there's no harm in a correct model providing it anyway.
     override fun unapplyGameModelUpdate(gameModelUpdate: GKGameModelUpdate) {
         val move = gameModelUpdate as NimMove
         pile += move.amount
