@@ -78,5 +78,10 @@ branching model.
 
 - **Documentation language:** all docs (README, KDoc, ROADMAP, etc.) must be written in **English**.
 - **Documentation location:** project docs beyond the root `README.md` (roadmap, design notes, API compatibility notes, etc.) live under `docs/`.
+- **Never name a private/unreleased consumer app.** This repo is public; some fixes here are
+  discovered while building other apps against it, and those apps may be private or unreleased.
+  Never reference such an app by name anywhere in this repo — commit messages, PR titles/
+  descriptions, code comments, or docs. Use generic phrasing instead ("a host app", "a consumer
+  app").
 - **`.gitignore`** covers macOS `.DS_Store` plus a standard Android/Gradle project (`.gradle/`, `build/`, `local.properties`, `*.apk`/`*.aab`, keystores, `google-services.json`, IntelliJ/Android Studio files).
 - **Git operations:** branch per the workflow above (`feature/*` off `develop`, etc.); do not run `git commit` or `git push` unless explicitly requested by the user for that specific change.
