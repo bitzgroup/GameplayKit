@@ -1,10 +1,12 @@
 package jp.co.bitz.gameplaykit
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
 class GKStateMachineTest {
     @Test
@@ -23,6 +25,8 @@ class GKStateMachineTest {
         assertSame(idle, machine.currentState)
     }
 
+    // A deliberate deviation: Apple's machine reports success here and drops currentState to null
+    // (see docs/API_COMPATIBILITY.md).
     @Test
     fun `enter fails for a class the machine does not know about`() {
         val machine = GKStateMachine(listOf(IdleState()))
@@ -61,5 +65,47 @@ class GKStateMachineTest {
 
         assertSame(idle, machine.state<IdleState>())
         assertNull(machine.state<WalkState>())
+    }
+
+    private class LoggingState(
+        val log: MutableList<String>,
+    ) : GKState() {
+        override fun didEnter(previousState: GKState?) {
+            log += "didEnter from ${previousState?.let { it::class.simpleName }}"
+        }
+
+        override fun willExit(nextState: GKState) {
+            log += "willExit to ${nextState::class.simpleName}"
+        }
+
+        override fun update(deltaTime: kotlin.time.Duration) {
+            log += "update"
+        }
+    }
+
+    // Expectations below are Apple's, recorded by the sample app's GameplayKitParity probes
+    // (GKStateMachineParityTests).
+
+    @Test
+    fun `update with no current state does nothing`() {
+        val log = mutableListOf<String>()
+        val machine = GKStateMachine(listOf(LoggingState(log)))
+
+        machine.update(100.milliseconds)
+
+        assertNull(machine.currentState)
+        assertEquals(emptyList(), log)
+    }
+
+    @Test
+    fun `entering the current state runs a full exit and enter`() {
+        val log = mutableListOf<String>()
+        val machine = GKStateMachine(listOf(LoggingState(log)))
+        machine.enter(LoggingState::class)
+        log.clear()
+
+        assertTrue(machine.canEnterState(LoggingState::class))
+        assertTrue(machine.enter(LoggingState::class))
+        assertEquals(listOf("willExit to LoggingState", "didEnter from LoggingState"), log)
     }
 }

@@ -61,4 +61,36 @@ class GKGraphTest {
 
         assertTrue(graph.findPath(a, b).isEmpty())
     }
+
+    // Expectations below are Apple's, recorded by the sample app's GameplayKitParity probes
+    // (GKGraphParityTests).
+
+    @Test
+    fun `remove cuts the removed nodes' connections in both directions`() {
+        val a = GKGraphNode()
+        val b = GKGraphNode()
+        val c = GKGraphNode()
+        a.addConnections(listOf(b), bidirectional = true)
+        b.addConnections(listOf(c), bidirectional = true)
+        val graph = GKGraph(listOf(a, b, c))
+
+        graph.remove(listOf(b))
+
+        assertEquals(listOf(a, c), graph.nodes)
+        assertEquals(emptyList(), a.connectedNodes)
+        assertEquals(emptyList(), b.connectedNodes)
+        assertEquals(emptyList(), c.connectedNodes)
+    }
+
+    @Test
+    fun `add registers nodes without connecting them`() {
+        val a = GKGraphNode()
+        val b = GKGraphNode()
+        val graph = GKGraph(listOf(a))
+
+        graph.add(listOf(b))
+
+        assertEquals(emptyList(), a.connectedNodes)
+        assertEquals(emptyList(), b.connectedNodes)
+    }
 }
