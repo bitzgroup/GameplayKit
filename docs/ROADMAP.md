@@ -212,3 +212,10 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
   a misidentification. The real class is `GKMeshGraph`, and it's purely 2D/obstacle-based like
   `GKObstacleGraph`, with no SceneKit dependency; it's implemented in Phase 5.)
 - Anything requiring Apple-only frameworks (Metal, SceneKit, SpriteKit) with no Android analog
+
+## Post-roadmap: Apple parity gaps
+
+The phases above are complete, but a 2026-11-15 audit of the whole public surface against Apple's
+documentation found API that is absent without having been recorded as a deviation. The gap list
+and the plan for closing it live in [`PARITY_GAP_PLAN.md`](PARITY_GAP_PLAN.md) — read it before
+starting any parity work, and update it as items land.
