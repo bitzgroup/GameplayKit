@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class GKGridGraphTest {
@@ -68,5 +69,48 @@ class GKGridGraphTest {
         assertEquals(goal, path.last())
         // Diagonal movement lets the path reach the opposite corner in 3 steps (4 nodes).
         assertEquals(4, path.size)
+    }
+
+    // Expectations below are Apple's, recorded by the sample app's GameplayKitParity probes
+    // (GKGraphParityTests).
+
+    @Test
+    fun `removing a node clears its lookup and connections`() {
+        val graph = GKGridGraph(Vector2Int(0, 0), gridWidth = 3, gridHeight = 3, diagonalsAllowed = false)
+        val center = graph.node(Vector2Int(1, 1))!!
+        val left = graph.node(Vector2Int(0, 1))!!
+        assertEquals(3, left.connectedNodes.size)
+
+        graph.remove(listOf(center))
+
+        assertNull(graph.node(Vector2Int(1, 1)))
+        assertEquals(8, graph.nodes.size)
+        assertEquals(2, left.connectedNodes.size)
+        assertEquals(0, center.connectedNodes.size)
+        assertEquals(5, graph.findPath(left, graph.node(Vector2Int(2, 1))!!).size)
+    }
+
+    @Test
+    fun `connectNodeToAdjacentNodes adds the node to the graph and the lookup`() {
+        val graph = GKGridGraph(Vector2Int(0, 0), gridWidth = 3, gridHeight = 3, diagonalsAllowed = false)
+        graph.remove(listOf(graph.node(Vector2Int(1, 1))!!))
+        val replacement = GKGridGraphNode(Vector2Int(1, 1))
+
+        graph.connectNodeToAdjacentNodes(replacement)
+
+        assertSame(replacement, graph.node(Vector2Int(1, 1)))
+        assertEquals(9, graph.nodes.size)
+        assertEquals(4, replacement.connectedNodes.size)
+        assertTrue(replacement in graph.node(Vector2Int(0, 1))!!.connectedNodes)
+    }
+
+    @Test
+    fun `a node connected outside the grid joins the graph but is not found by position`() {
+        val graph = GKGridGraph(Vector2Int(0, 0), gridWidth = 3, gridHeight = 3, diagonalsAllowed = false)
+
+        graph.connectNodeToAdjacentNodes(GKGridGraphNode(Vector2Int(5, 5)))
+
+        assertNull(graph.node(Vector2Int(5, 5)))
+        assertEquals(10, graph.nodes.size)
     }
 }

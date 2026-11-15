@@ -45,30 +45,39 @@ or rarely used.
 | G8 | `GKPath` | 3D paths (`init(float3Points:…)`) — recorded as out of scope; needed only if `GKAgent3D` path following is wanted. | P3 |
 | G9 | `GKEntity` / `GKComponent` | `copy()` — excluded with `NSCopying`; prototype-entity copying is a common pattern. Reconsider as explicit `open fun copy()`. | P3 |
 
-### 1.3 Behavior to verify (not confirmed gaps)
+### 1.3 Behavior to verify — done
 
-These could not be settled by reading alone and should be checked against the real framework:
+Verified on iOS and tvOS simulators. The results are recorded as tests in the tic-tac-toe
+sample's `GameplayKitParity` target (`apple-platforms/GameplayKitParity/`) and mirrored in this
+library's unit tests:
 
-- `GKRandomDistribution.nextInt(upperBound:)` — currently `coerceAtMost`, which skews the
-  distribution toward the top value. Apple's behavior is undocumented; measure it.
-- `GKShuffledDistribution` — confirm the "no repeats until every value has been produced" contract
-  across the wrap-around boundary.
-- `GKStateMachine.enter(_:)` to the *current* state, and `update(deltaTime:)` with no current
-  state — confirm both match Apple.
-- `GKGridGraph.remove(_:)` — confirm that removing nodes also updates `node(at:)` lookup.
+- ~~`GKRandomDistribution.nextInt(upperBound:)`~~ — **fixed.** Apple draws uniformly from
+  `lowestValue..min(highestValue, upperBound - 1)` straight from the source, for every subclass,
+  and raises if `upperBound` isn't above `lowestValue`. This library's `coerceAtMost` skewed toward
+  the top value.
+- ~~`GKShuffledDistribution` wrap-around~~ — **fixed.** Apple never repeats a value across the
+  wrap-around; this library could.
+- ~~`GKStateMachine` re-entering the current state / `update` with no state~~ — **match Apple.**
+  Found on the way: Apple "succeeds" at entering an *unregistered* state and drops to a `nil`
+  state. Kept as a recorded deviation (this library returns `false`).
+- ~~`GKGridGraph.remove(_:)`~~ — **fixed.** Apple clears the lookup and cuts the removed nodes'
+  connections (plain `GKGraph.remove` cuts connections too); `connectToAdjacentNodes` adds the node
+  to the graph, and lookup never finds a node outside the grid. This library did none of these.
 
 ## 2. Proposed work order
 
 Each step is one `feature/*` branch and PR against `develop`, updating
 `API_COMPATIBILITY.md` in the same PR.
 
-1. Section 1.3 verification on a simulator; fix or document whatever differs.
+1. ~~Section 1.3 verification on a simulator; fix or document whatever differs.~~ Done.
 2. G1 (`GKCompositeBehavior`), G4 (`GKObstacleGraph` locking / ignore lists).
 3. G6, G7 (noise selection and remapping).
 4. G2 (`GKRTree`), G3 (`GKSphereObstacle`), G5 (custom grid/mesh node types).
 5. G8, G9 only on demand.
 
-## 3. Suggested changes to recorded scope decisions
+## 3. Suggested changes to recorded scope decisions — done
+
+All three applied to `API_COMPATIBILITY.md`/`ROADMAP.md`.
 
 - `GKScene` and SpriteKit integration are described as having "no Android equivalent renderer to
   bind to". That is no longer true: they live in

@@ -21,11 +21,19 @@ public open class GKRandomDistribution(
     override fun nextInt(): Int = lowestValue + randomSource.nextInt(numberOfPossibleOutcomes)
 
     /**
-     * Returns [nextInt] capped below [upperBound]. Interpreted consistently across all
-     * distribution subtypes as "the distribution's own `nextInt()`, capped below `upperBound`",
-     * since GameplayKit doesn't document this combination precisely.
+     * Returns a uniformly random Int in `lowestValue..min(highestValue, upperBound - 1)`, drawn
+     * straight from [randomSource] — matching Apple (verified on iOS/tvOS simulators), where the
+     * distribution's own shape plays no part: a [GKGaussianDistribution] is uniform here too, and a
+     * [GKShuffledDistribution] doesn't take a value out of its shuffled bag.
+     *
+     * @throws IllegalArgumentException if [upperBound] isn't above [lowestValue] (Apple raises
+     *   `NSInvalidArgumentException`).
      */
-    public final override fun nextInt(upperBound: Int): Int = nextInt().coerceAtMost(upperBound - 1)
+    public final override fun nextInt(upperBound: Int): Int {
+        require(upperBound > lowestValue) { "upperBound ($upperBound) must be above lowestValue ($lowestValue)" }
+        val highest = minOf(highestValue, upperBound - 1)
+        return lowestValue + randomSource.nextInt(highest - lowestValue + 1)
+    }
 
     override fun nextUniform(): Float = randomSource.nextUniform()
 
