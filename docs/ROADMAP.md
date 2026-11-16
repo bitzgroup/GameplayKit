@@ -3,9 +3,10 @@
 This document tracks progress implementing a Kotlin/Android library that mirrors Apple's
 [GameplayKit](https://developer.apple.com/documentation/gameplaykit) API and behavior.
 
-Check off items as they are implemented and tested. Items tied to Apple-platform-only concerns
-(SpriteKit/SceneKit scene integration) are noted as **out of scope** since there is no Android
-equivalent to bind to; the underlying algorithms are still implemented where useful standalone.
+Check off items as they are implemented and tested. Items tied to scene integration (`GKScene`,
+SpriteKit binding) are **out of scope here** — they live in
+[GKSKBridge](https://github.com/bitzgroup/GKSKBridge); the underlying algorithms are still
+implemented where useful standalone.
 
 ## Design Principle: Kotlin-Idiomatic, Not a Literal Port
 
@@ -26,7 +27,7 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 ## Phase 0 — Project Setup
 
 - [x] Scaffold Gradle Android library module (Kotlin DSL, `com.android.library` plugin)
-- [x] Configure Kotlin, min/target/compile SDK versions (minSdk 24, compileSdk/targetSdk 34)
+- [x] Configure Kotlin, min/target/compile SDK versions (minSdk 24, compileSdk/targetSdk 34; `compileSdk` since raised to 37)
 - [x] Configure unit test setup (JUnit / kotlin.test)
 - [x] Configure `ktlint`/`detekt` (or chosen lint/format tooling)
 - [x] Set up CI (build + test on push/PR via GitHub Actions)
@@ -170,8 +171,8 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
       Deviation: positions are this library's existing single-precision `Vector3` rather than
       GameplayKit's double-precision `vector_double3` — not worth a parallel vector type for one
       API. Not implemented: the `gradientColors`-based constructor/property (`UIColor`/`NSColor`,
-      no Android equivalent) and `remapValuesToCurve`/`remapValuesToTerraces` (texture/curve
-      editing conveniences, rendering-adjacent rather than algorithmic core)
+      no Android equivalent); `remapValuesToCurve`/`remapValuesToTerraces` were left out as
+      rendering-adjacent, since reclassified as planned (`PARITY_GAP_PLAN.md` G7)
 - [x] `GKNoiseMap` — slices a finite 2D grid (`size`/`origin`/`sampleCount`) out of a `GKNoise`
       field, `value(at:)`/`setValue(_:at:)`/`interpolatedValue(at:)` (bilinear). `seamless` wraps
       grid coordinates modulo `sampleCount` (a simple tileable approximation — GameplayKit doesn't
@@ -200,15 +201,23 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 - [x] API compatibility notes (documented deviations from Apple's GameplayKit where Kotlin/Android
       constraints require a different shape) — see `docs/API_COMPATIBILITY.md`
 - [x] README with usage examples per module
-- **Not in this repo:** a sample Android app demonstrating entities/components, pathfinding, and
-      agents is planned, but will live in its own repository rather than in-tree here (decided
-      separately from this checklist)
+- **Not in this repo:** the sample app lives in its own repository —
+      [bitzgroup/tic-tac-toe](https://github.com/bitzgroup/tic-tac-toe), which plays the same game on iOS (Apple's GameplayKit) and
+      Android (this library) side by side
 
 ## Explicitly Out of Scope
 
-- `GKScene` — associates GameplayKit entities/graphs with a SpriteKit `SKScene` (or SceneKit
-  scene); no Android equivalent renderer to bind to
+- `GKScene` — associates GameplayKit entities/graphs with a SpriteKit `SKScene`; out of scope for
+  this renderer-free library, and provided by [GKSKBridge](https://github.com/bitzgroup/GKSKBridge)
+  on top of [SpriteKit for Android](https://github.com/bitzgroup/SpriteKit)
 - (Previously listed here as "`GKMesh` / navmesh generation tied to SceneKit geometry" — that was
   a misidentification. The real class is `GKMeshGraph`, and it's purely 2D/obstacle-based like
   `GKObstacleGraph`, with no SceneKit dependency; it's implemented in Phase 5.)
 - Anything requiring Apple-only frameworks (Metal, SceneKit, SpriteKit) with no Android analog
+
+## Post-roadmap: Apple parity gaps
+
+The phases above are complete, but a 2026-11-15 audit of the whole public surface against Apple's
+documentation found API that is absent without having been recorded as a deviation. The gap list
+and the plan for closing it live in [`PARITY_GAP_PLAN.md`](PARITY_GAP_PLAN.md) — read it before
+starting any parity work, and update it as items land.

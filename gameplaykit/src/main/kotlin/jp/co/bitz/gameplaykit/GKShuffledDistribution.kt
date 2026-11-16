@@ -3,7 +3,9 @@ package jp.co.bitz.gameplaykit
 /**
  * A "fair" distribution of integers over `[lowestValue, highestValue]`, mirroring GameplayKit's
  * `GKShuffledDistribution`: draws every value in the range exactly once, in a freshly shuffled
- * order, before any value repeats.
+ * order, before any value repeats — and, like Apple's (verified on iOS/tvOS simulators), a fresh
+ * shuffle never starts with the value the previous one ended on, so no value is ever drawn twice in
+ * a row.
  */
 public class GKShuffledDistribution(
     randomSource: GKRandom,
@@ -14,12 +16,23 @@ public class GKShuffledDistribution(
     public constructor(lowestValue: Int, highestValue: Int) : this(GKARC4RandomSource(), lowestValue, highestValue)
 
     private var bag: MutableList<Int> = mutableListOf()
+    private var lastValue: Int? = null
 
     override fun nextInt(): Int {
         if (bag.isEmpty()) {
             bag = shuffledRange()
+            avoidRepeatAtWrapAround()
         }
-        return bag.removeAt(bag.lastIndex)
+        return bag.removeAt(bag.lastIndex).also { lastValue = it }
+    }
+
+    /** Swaps the next value to draw (the bag's last) with another if it equals [lastValue]. */
+    private fun avoidRepeatAtWrapAround() {
+        if (bag.size < 2 || bag.last() != lastValue) return
+        val j = randomSource.nextInt(bag.size - 1)
+        val tmp = bag[j]
+        bag[j] = bag[bag.lastIndex]
+        bag[bag.lastIndex] = tmp
     }
 
     private fun shuffledRange(): MutableList<Int> {

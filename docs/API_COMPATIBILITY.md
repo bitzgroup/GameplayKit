@@ -47,7 +47,15 @@ Two deviation categories recur throughout and are called out once here rather th
 
 ## State machines (`GKState`, `GKStateMachine`)
 
-- No deviations beyond the general conventions above.
+- **Entering an unregistered state fails here; Apple's "succeeds".** Apple's `canEnterState(_:)`
+  and `enter(_:)` don't check that the machine holds the state class: both report `true`, and
+  `enter` drops `currentState` to `nil`, passing `nil` to the current state's `willExit(to:)` —
+  which crashes any Swift override of that non-optional parameter (verified on iOS/tvOS
+  simulators, recorded in the tic-tac-toe sample's `GameplayKitParity` probes). This library
+  returns `false` from both and leaves the machine unchanged instead.
+- Verified to match Apple: re-entering the current state is a full transition (`willExit` then
+  `didEnter`, both with the state itself, and `enter` returns `true` under the default
+  `isValidNextState`); `update` with no current state does nothing.
 
 ## Randomization (`GKRandom`, `GKRandomSource`, `GKRandomDistribution`)
 
@@ -60,12 +68,21 @@ Two deviation categories recur throughout and are called out once here rather th
 - `GKGaussianDistribution` uses the Marsaglia polar method. *Contract-conformant, not
   bit-identical*: it satisfies the documented mean/deviation contract, not Apple's undocumented
   internal sampler.
-- `GKRandomDistribution.nextInt(upperBound:)`'s combination with a distribution's own range isn't
-  documented by Apple; this library defines it uniformly as `nextInt().coerceAtMost(upperBound - 1)`
-  across the base class and every subclass.
+- `GKRandomDistribution.nextInt(upperBound:)` matches Apple's undocumented behavior (verified on
+  iOS/tvOS simulators, recorded in the tic-tac-toe sample's `GameplayKitParity` probes): a uniform
+  draw from `lowestValue..min(highestValue, upperBound - 1)` straight from the random source, for
+  every subclass — a Gaussian distribution is uniform here too, and a shuffled distribution's bag
+  is left alone. An `upperBound` not above `lowestValue` throws `IllegalArgumentException` (Apple:
+  `NSInvalidArgumentException`). (Previously it was `nextInt().coerceAtMost(upperBound - 1)`,
+  which piled every excess draw onto the top value.)
+- `GKShuffledDistribution` never draws the same value twice in a row: besides producing every value
+  once per cycle, a new cycle never starts with the value the previous one ended on — Apple's
+  behavior, verified the same way.
 
 ## Spatial partitioning (`GKQuadtree`, `GKOctree`)
 
+- **`GKRTree` is not implemented yet** (with `GKRTreeSplitStrategy`) — planned; see
+  `docs/PARITY_GAP_PLAN.md` (G2).
 - Both relax Apple's `ElementType: AnyObject` constraint to Kotlin's `Any`, so value/data classes
   can be stored directly rather than requiring a reference-type wrapper — consistent with this
   library's idiomatic-Kotlin design principle.
@@ -83,11 +100,18 @@ Two deviation categories recur throughout and are called out once here rather th
   Triangulation uses the classic Bowyer-Watson algorithm (*contract-conformant, not
   bit-identical*: a valid Delaunay triangulation of the input points, not necessarily matching
   Apple's own triangulator's exact edge choices on degenerate/co-circular inputs).
+- `GKGraph.remove` cuts every connection to or from the removed nodes, and `GKGridGraph.remove`
+  also clears their position lookup; `GKGridGraph.connectNodeToAdjacentNodes` adds the node to the
+  graph, and `node(position)` never finds a node outside the grid — all as Apple's does (verified
+  on iOS/tvOS simulators, recorded in the tic-tac-toe sample's `GameplayKitParity` probes).
+  Previously, removal only unregistered the nodes, so pathfinding still routed through them.
 - `GKPath`'s 3D variant is out of scope; only the 2D polygonal path used by follow/stay-on-path
   goals is implemented.
 
 ## Agents, goals, and behaviors (`GKAgent`, `GKGoal`, `GKBehavior`)
 
+- **Not implemented yet:** `GKCompositeBehavior` (G1) and `GKSphereObstacle` (G3, the 3D obstacle
+  for `GKAgent3D` avoidance) — planned; see `docs/PARITY_GAP_PLAN.md`.
 - `GKAgent2D`/`GKAgent3D` share one internal `Vector3` position/velocity/heading simulation, so
   steering is implemented once for both dimensions rather than twice.
 - `GKAgent3D.rotation` is a normalized forward-direction `Vector3`, not GameplayKit's `simd_quatf`
@@ -161,9 +185,11 @@ Two deviation categories recur throughout and are called out once here rather th
 
 - `GKNoise` samples single-precision `Vector3` positions; see "No SIMD vector types" above.
 - Not implemented: the `gradientColors`-based constructor/property (tied to `UIColor`/`NSColor`, no
-  Android equivalent wired into this library) and `remapValuesToCurve`/`remapValuesToTerraces`
-  (texture/curve-editing conveniences, rendering-adjacent rather than algorithmic core — this
-  library implements noise's algorithmic core only, per `docs/ROADMAP.md`'s Phase 10 scope).
+  Android equivalent wired into this library).
+- **Not implemented yet, planned:** `remapValues(toCurveWithControlPoints:)`/
+  `remapValues(toTerracesWithPeaks:terracesInverted:)` (G7 — pure value transforms, so part of the
+  algorithmic core after all, despite having been classed as rendering-adjacent in Phase 10) and
+  the `componentNoises:selectionNoise:` constructors (G6). See `docs/PARITY_GAP_PLAN.md`.
 - `GKNoise.rotate`'s Euler rotation order (X then Y then Z) is *contract-conformant, not
   bit-identical*: GameplayKit doesn't document its own rotation order.
 - `GKNoiseMap.seamless` wraps grid coordinates modulo `sampleCount`, a simple tileable
@@ -180,10 +206,12 @@ Two deviation categories recur throughout and are called out once here rather th
 
 ## Explicitly out of scope
 
-- **`GKScene`** — associates GameplayKit entities/graphs with a SpriteKit `SKScene` (or SceneKit
-  scene); there is no Android equivalent renderer to bind to.
+- **`GKScene` and SpriteKit integration** (`GKSKNodeComponent`, ...) — not in this library, which
+  stays renderer-free; they live in [GKSKBridge](https://github.com/bitzgroup/GKSKBridge), which
+  binds this library to [SpriteKit for Android](https://github.com/bitzgroup/SpriteKit).
 - **Anything requiring Apple-only frameworks** (Metal, SceneKit, SpriteKit) with no Android analog.
-- A sample Android app demonstrating entities/components, pathfinding, and agents is planned, but
-  will live in its own repository rather than in-tree here.
+- **A sample app in this repo.** The sample lives in its own repository,
+  [bitzgroup/tic-tac-toe](https://github.com/bitzgroup/tic-tac-toe), which also records Apple's real GameplayKit behavior this library
+  is checked against (its `GameplayKitParity` probes).
 
 See `docs/ROADMAP.md` for the full phase-by-phase implementation history these notes are drawn from.

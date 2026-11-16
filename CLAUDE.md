@@ -28,7 +28,7 @@ see that file for phase-by-phase detail.
 
 This repo implements a **Kotlin library for Android that mirrors Apple's [GameplayKit](https://developer.apple.com/documentation/gameplaykit) API** — entity-component architecture, state machines, pathfinding (graphs/grids/obstacles), agents/goals/behaviors (steering), rule systems, randomization sources/distributions, decision trees, minmax/Monte Carlo game AI, spatial partitioning (quadtree/octree), and noise generation.
 
-The goal is API and behavioral parity with Apple's GameplayKit types (`GKEntity`, `GKComponent`, `GKStateMachine`, `GKAgent`, `GKGraph`, etc.), but expressed in **idiomatic Kotlin** rather than a literal Obj-C/Swift transliteration (nullable types instead of Optional-as-comment, data/sealed classes, extension functions, no `NSPredicate` equivalent — `GKRule` uses Kotlin lambdas instead). Features tied to Apple-only rendering frameworks (SpriteKit/SceneKit scene binding, i.e. `GKScene`) are out of scope since there's no Android equivalent to bind to; navmesh generation (`GKMeshGraph`) has no such dependency and is implemented. See `docs/ROADMAP.md`'s "Design Principle" section for details.
+The goal is API and behavioral parity with Apple's GameplayKit types (`GKEntity`, `GKComponent`, `GKStateMachine`, `GKAgent`, `GKGraph`, etc.), but expressed in **idiomatic Kotlin** rather than a literal Obj-C/Swift transliteration (nullable types instead of Optional-as-comment, data/sealed classes, extension functions, no `NSPredicate` equivalent — `GKRule` uses Kotlin lambdas instead). Scene binding (`GKScene`, SpriteKit integration) is out of scope for this renderer-free library — it lives in [GKSKBridge](https://github.com/bitzgroup/GKSKBridge); navmesh generation (`GKMeshGraph`) has no such dependency and is implemented. See `docs/ROADMAP.md`'s "Design Principle" section for details.
 
 See `docs/ROADMAP.md` for the full implementation plan and progress checklist, organized by GameplayKit subsystem.
 
@@ -78,5 +78,10 @@ branching model.
 
 - **Documentation language:** all docs (README, KDoc, ROADMAP, etc.) must be written in **English**.
 - **Documentation location:** project docs beyond the root `README.md` (roadmap, design notes, API compatibility notes, etc.) live under `docs/`.
+- **Never name a private/unreleased consumer app.** This repo is public; some fixes here are
+  discovered while building other apps against it, and those apps may be private or unreleased.
+  Never reference such an app by name anywhere in this repo — commit messages, PR titles/
+  descriptions, code comments, or docs. Use generic phrasing instead ("a host app", "a consumer
+  app").
 - **`.gitignore`** covers macOS `.DS_Store` plus a standard Android/Gradle project (`.gradle/`, `build/`, `local.properties`, `*.apk`/`*.aab`, keystores, `google-services.json`, IntelliJ/Android Studio files).
 - **Git operations:** branch per the workflow above (`feature/*` off `develop`, etc.); do not run `git commit` or `git push` unless explicitly requested by the user for that specific change.

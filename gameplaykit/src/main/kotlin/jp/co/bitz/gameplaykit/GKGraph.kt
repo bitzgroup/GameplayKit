@@ -17,9 +17,19 @@ public open class GKGraph(nodes: List<GKGraphNode> = emptyList()) {
         mutableNodes.addAll(nodes)
     }
 
-    /** Unregisters [nodes] from this graph. Does not remove any existing connections. */
+    /**
+     * Unregisters [nodes] from this graph and cuts every connection to or from them, in both
+     * directions, as Apple's does (verified on iOS/tvOS simulators) — so pathfinding no longer
+     * routes through a removed node.
+     */
     public open fun remove(nodes: List<GKGraphNode>) {
-        mutableNodes.removeAll(nodes.toSet())
+        val removed = nodes.toSet()
+        mutableNodes.removeAll(removed)
+        removed.forEach { node -> node.removeConnections(node.connectedNodes, bidirectional = true) }
+        mutableNodes.forEach {
+                node ->
+            node.removeConnections(node.connectedNodes.filter { it in removed }, bidirectional = false)
+        }
     }
 
     /**
