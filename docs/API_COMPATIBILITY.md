@@ -210,7 +210,8 @@ Two deviation categories recur throughout and are called out once here rather th
   stays renderer-free; they live in [GKSKBridge](https://github.com/bitzgroup/GKSKBridge), which
   binds this library to [SpriteKit for Android](https://github.com/bitzgroup/SpriteKit).
 - **Anything requiring Apple-only frameworks** (Metal, SceneKit, SpriteKit) with no Android analog.
-- A sample Android app demonstrating entities/components, pathfinding, and agents is planned, but
-  will live in its own repository rather than in-tree here.
+- **A sample app in this repo.** The sample lives in its own repository,
+  [bitzgroup/tic-tac-toe](https://github.com/bitzgroup/tic-tac-toe), which also records Apple's real GameplayKit behavior this library
+  is checked against (its `GameplayKitParity` probes).
 
 See `docs/ROADMAP.md` for the full phase-by-phase implementation history these notes are drawn from.

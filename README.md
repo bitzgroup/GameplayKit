@@ -35,7 +35,8 @@ This project is under active development. Implemented so far:
   `GKCheckerboardNoiseSource`, `GKCylindersNoiseSource`, `GKSpheresNoiseSource`,
   `GKConstantNoiseSource`)
 
-A sample Android app is tracked separately in [`docs/ROADMAP.md`](docs/ROADMAP.md) (Phase 11).
+For a complete app using this library, see [bitzgroup/tic-tac-toe](https://github.com/bitzgroup/tic-tac-toe),
+which plays the same game on iOS (Apple's GameplayKit) and Android (this library) side by side.
 
 ## Usage
 
@@ -162,7 +163,7 @@ val height = map.value(at = Vector2Int(10, 20)) // -1f..1f
 
 ## Requirements
 
-- Android `minSdk` 24, `compileSdk`/`targetSdk` 34
+- Android `minSdk` 24, `compileSdk` 37
 - Kotlin 2.0+
 
 ## Building
