@@ -27,7 +27,7 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 ## Phase 0 — Project Setup
 
 - [x] Scaffold Gradle Android library module (Kotlin DSL, `com.android.library` plugin)
-- [x] Configure Kotlin, min/target/compile SDK versions (minSdk 24, compileSdk/targetSdk 34)
+- [x] Configure Kotlin, min/target/compile SDK versions (minSdk 24, compileSdk/targetSdk 34; `compileSdk` since raised to 37)
 - [x] Configure unit test setup (JUnit / kotlin.test)
 - [x] Configure `ktlint`/`detekt` (or chosen lint/format tooling)
 - [x] Set up CI (build + test on push/PR via GitHub Actions)
@@ -201,9 +201,9 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 - [x] API compatibility notes (documented deviations from Apple's GameplayKit where Kotlin/Android
       constraints require a different shape) — see `docs/API_COMPATIBILITY.md`
 - [x] README with usage examples per module
-- **Not in this repo:** a sample Android app demonstrating entities/components, pathfinding, and
-      agents is planned, but will live in its own repository rather than in-tree here (decided
-      separately from this checklist)
+- **Not in this repo:** the sample app lives in its own repository —
+      [bitzgroup/tic-tac-toe](https://github.com/bitzgroup/tic-tac-toe), which plays the same game on iOS (Apple's GameplayKit) and
+      Android (this library) side by side
 
 ## Explicitly Out of Scope
 
