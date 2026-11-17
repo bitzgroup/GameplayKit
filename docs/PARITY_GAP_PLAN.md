@@ -40,8 +40,8 @@ or rarely used.
 | --- | --- | --- | --- |
 | ~~G4~~ | ~~`GKObstacleGraph`~~ | ~~`lockConnection(from:to:)`, `unlockConnection(from:to:)`, `isConnectionLocked(from:to:)`; `connectUsingObstacles(node:ignoring:)`, `connectUsingObstacles(node:ignoringBufferRadiusOf:)`~~ — **Done**, verified on iOS/tvOS simulators: a lock keeps only its own direction. `connectNode` is renamed to Apple's `connectUsingObstacles`. | P1 |
 | G5 | `GKGridGraph` | Generic custom node class (`GKGridGraph<NodeType>` / `classForGenericArgument(at:)`) — the same limitation already recorded for `GKMeshGraph`, but not recorded here. A node-factory lambda parameter would cover both. | P2 |
-| G6 | `GKNoise` | `init(componentNoises:selectionNoise:)` and `init(componentNoises:selectionNoise:componentBoundaries:boundaryBlendDistances:)` (noise selection/blending) | P2 |
-| G7 | `GKNoise` | `remapValues(toCurveWithControlPoints:)`, `remapValues(toTerracesWithPeaks:terracesInverted:)` — recorded as "not implemented" on the grounds that they are rendering-adjacent; they are in fact pure value transforms and belong to the algorithmic core. | P2 |
+| ~~G6~~ | ~~`GKNoise`~~ | ~~`init(componentNoises:selectionNoise:)` and `init(componentNoises:selectionNoise:componentBoundaries:boundaryBlendDistances:)`~~ — **Done**, verified on iOS/tvOS simulators: the chosen component's `-1..1` range is squeezed into its band of the selection axis, and blend distances have no effect. Also found: Apple clamps every sampled value to `-1..1` (intermediate results stay unclamped); this library didn't, fixed. | P2 |
+| ~~G7~~ | ~~`GKNoise`~~ | ~~`remapValues(toCurveWithControlPoints:)`, `remapValues(toTerracesWithPeaks:terracesInverted:)`~~ — **Done** as `remapValuesToCurve`/`remapValuesToTerraces`, following libnoise's curve/terrace modules: on iOS/tvOS simulators Apple's curve remap raises an exception for any dictionary and its terrace remap doesn't trace terraces (recorded deviation). | P2 |
 | G8 | `GKPath` | 3D paths (`init(float3Points:…)`) — recorded as out of scope; needed only if `GKAgent3D` path following is wanted. | P3 |
 | G9 | `GKEntity` / `GKComponent` | `copy()` — excluded with `NSCopying`; prototype-entity copying is a common pattern. Reconsider as explicit `open fun copy()`. | P3 |
 
@@ -71,7 +71,7 @@ Each step is one `feature/*` branch and PR against `develop`, updating
 
 1. ~~Section 1.3 verification on a simulator; fix or document whatever differs.~~ Done.
 2. ~~G1 (`GKCompositeBehavior`), G4 (`GKObstacleGraph` locking / ignore lists).~~ Done.
-3. G6, G7 (noise selection and remapping).
+3. ~~G6, G7 (noise selection and remapping).~~ Done, plus the `-1..1` clamp it surfaced.
 4. G2 (`GKRTree`), G3 (`GKSphereObstacle`), G5 (custom grid/mesh node types).
 5. G8, G9 only on demand.
 

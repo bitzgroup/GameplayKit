@@ -15,9 +15,9 @@ class GKNoiseTest {
 
     @Test
     fun `value samples the source on the X-Z plane`() {
-        val noise = GKNoise(GKConstantNoiseSource(2.5))
+        val noise = GKNoise(GKConstantNoiseSource(0.25))
 
-        assertEquals(2.5f, noise.value(at = Vector2(10f, 10f)))
+        assertEquals(0.25f, noise.value(at = Vector2(10f, 10f)))
     }
 
     @Test
@@ -33,9 +33,9 @@ class GKNoiseTest {
     fun `multiply scales this noise by another`() {
         val noise = GKNoise(GKConstantNoiseSource(0.5))
 
-        noise.multiply(GKNoise(GKConstantNoiseSource(4.0)))
+        noise.multiply(GKNoise(GKConstantNoiseSource(-0.5)))
 
-        assertEquals(2.0f, noise.value(at = Vector2(0f, 0f)))
+        assertEquals(-0.25f, noise.value(at = Vector2(0f, 0f)))
     }
 
     @Test
@@ -51,11 +51,11 @@ class GKNoiseTest {
 
     @Test
     fun `raiseToPower with an exponent`() {
-        val noise = GKNoise(GKConstantNoiseSource(2.0))
+        val noise = GKNoise(GKConstantNoiseSource(0.5))
 
         noise.raiseToPower(3.0)
 
-        assertEquals(8f, noise.value(at = Vector2(0f, 0f)))
+        assertEquals(0.125f, noise.value(at = Vector2(0f, 0f)))
     }
 
     @Test
@@ -69,11 +69,11 @@ class GKNoiseTest {
 
     @Test
     fun `applyAbsoluteValue removes the sign`() {
-        val noise = GKNoise(GKConstantNoiseSource(-3.0))
+        val noise = GKNoise(GKConstantNoiseSource(-0.75))
 
         noise.applyAbsoluteValue()
 
-        assertEquals(3f, noise.value(at = Vector2(0f, 0f)))
+        assertEquals(0.75f, noise.value(at = Vector2(0f, 0f)))
     }
 
     @Test

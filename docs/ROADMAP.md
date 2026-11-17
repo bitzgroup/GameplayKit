@@ -171,8 +171,9 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
       Deviation: positions are this library's existing single-precision `Vector3` rather than
       GameplayKit's double-precision `vector_double3` — not worth a parallel vector type for one
       API. Not implemented: the `gradientColors`-based constructor/property (`UIColor`/`NSColor`,
-      no Android equivalent); `remapValuesToCurve`/`remapValuesToTerraces` were left out as
-      rendering-adjacent, since reclassified as planned (`PARITY_GAP_PLAN.md` G7)
+      no Android equivalent). `remapValuesToCurve`/`remapValuesToTerraces` (first left out as
+      rendering-adjacent) and the `componentNoises:selectionNoise:` constructors were added later
+      (`PARITY_GAP_PLAN.md` G6, G7), along with GameplayKit's `-1..1` clamp on sampled values
 - [x] `GKNoiseMap` — slices a finite 2D grid (`size`/`origin`/`sampleCount`) out of a `GKNoise`
       field, `value(at:)`/`setValue(_:at:)`/`interpolatedValue(at:)` (bilinear). `seamless` wraps
       grid coordinates modulo `sampleCount` (a simple tileable approximation — GameplayKit doesn't
