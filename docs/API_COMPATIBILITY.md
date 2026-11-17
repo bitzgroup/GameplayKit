@@ -196,10 +196,24 @@ Two deviation categories recur throughout and are called out once here rather th
 - `GKNoise` samples single-precision `Vector3` positions; see "No SIMD vector types" above.
 - Not implemented: the `gradientColors`-based constructor/property (tied to `UIColor`/`NSColor`, no
   Android equivalent wired into this library).
-- **Not implemented yet, planned:** `remapValues(toCurveWithControlPoints:)`/
-  `remapValues(toTerracesWithPeaks:terracesInverted:)` (G7 — pure value transforms, so part of the
-  algorithmic core after all, despite having been classed as rendering-adjacent in Phase 10) and
-  the `componentNoises:selectionNoise:` constructors (G6). See `docs/PARITY_GAP_PLAN.md`.
+- **Sampled values are clamped to `-1..1`**, as on GameplayKit (verified on iOS/tvOS simulators):
+  `GKNoise.value(at:)` and `GKNoiseMap` clamp what they return, while every operation works on
+  unclamped values — a constant `3` plus a constant `-2.5` samples as `0.5`. (Previously nothing
+  was clamped, so e.g. a constant `2.5` sampled as `2.5` instead of `1`.)
+- **`GKNoise(componentNoises, selectionNoise, componentBoundaries, boundaryBlendDistances)`**
+  matches GameplayKit's selection constructors (verified on iOS/tvOS simulators), including two
+  undocumented behaviors: the chosen component's `-1..1` range is squeezed linearly into its band
+  of the selection axis (two components with the default boundary `0` land in `-1..0` and `0..1`)
+  rather than passed through, and `boundaryBlendDistances` have no effect. Default boundaries are
+  evenly spaced; a selection value on a boundary picks the upper component. Where Apple traps on a
+  wrong number of boundaries, this throws `IllegalArgumentException`.
+- **`remapValuesToCurve(controlPoints)`/`remapValuesToTerraces(peaks, terracesInverted)`** instead
+  of `remapValues(toCurveWithControlPoints:)`/`remapValues(toTerracesWithPeaks:terracesInverted:)`
+  (Kotlin can't overload on labels alone), and *not* Apple's output: on iOS/tvOS simulators Apple's
+  curve remap raises an `NSInvalidArgumentException` for any dictionary, and its terrace remap
+  doesn't trace terraces (not monotonic, `terracesInverted` often ignored — recorded in the sample
+  app's `GKNoiseParityTests`). Both follow the libnoise curve (cubic) and terrace (squared
+  ease-in) modules GameplayKit's noise API is modeled on instead.
 - `GKNoise.rotate`'s Euler rotation order (X then Y then Z) is *contract-conformant, not
   bit-identical*: GameplayKit doesn't document its own rotation order.
 - `GKNoiseMap.seamless` wraps grid coordinates modulo `sampleCount`, a simple tileable
