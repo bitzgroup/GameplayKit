@@ -142,6 +142,15 @@ Two deviation categories recur throughout and are called out once here rather th
   bounding circle.
 - `GKAgent2D`/`GKAgent3D` share one internal `Vector3` position/velocity/heading simulation, so
   steering is implemented once for both dimensions rather than twice.
+- Agent state matches Apple's observed behavior (verified on iOS/tvOS simulators): velocity is
+  always the heading times `speed`, so setting `speed` or `rotation` moves it, and a negative
+  `speed` points it backward; `speed` is capped at `maxSpeed` only on the next update. Defaults are
+  Apple's — `maxSpeed` 1, `maxAcceleration` 1, `mass` 1, `radius` 0.5 — and a new `GKAgent2D` heads
+  along +y (`rotation` π/2, read back in `0 until 2π`), a new `GKAgent3D` along +z. (Up to 0.4.0,
+  `speed` was only a reading, every tunable defaulted to 0 so a default agent never moved, and
+  both agents headed along +x.) Apple's `velocity` is read-only; the setters remain, deprecated,
+  and set `rotation` and `speed`. A `mass` of 0 or less disables steering here; Apple's agent
+  positions turn NaN.
 - `GKAgent3D.rotation` is a normalized forward-direction `Vector3`, not GameplayKit's `simd_quatf`
   — no other API in this port needs roll around the forward axis, so a full quaternion type wasn't
   judged worth introducing for this one property.

@@ -7,16 +7,26 @@ import kotlin.time.Duration.Companion.seconds
 
 class GKAgent3DTest {
     @Test
-    fun `position velocity and rotation round-trip through their 3D setters`() {
+    fun `position and rotation round-trip through their 3D setters`() {
         val agent = GKAgent3D()
 
         agent.position = Vector3(1f, 2f, 3f)
-        agent.velocity = Vector3(4f, 5f, 6f)
-        agent.rotation = Vector3(0f, 0f, 1f)
+        agent.rotation = Vector3(1f, 0f, 0f)
 
         assertEquals(Vector3(1f, 2f, 3f), agent.position)
-        assertEquals(Vector3(4f, 5f, 6f), agent.velocity)
-        assertEquals(Vector3(0f, 0f, 1f), agent.rotation)
+        assertEquals(Vector3(1f, 0f, 0f), agent.rotation)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun `the deprecated velocity setter sets rotation and speed`() {
+        val agent = GKAgent3D()
+
+        agent.velocity = Vector3(0f, 3f, 4f)
+
+        assertEquals(5f, agent.speed, 0.0001f)
+        assertEquals(0.6f, agent.rotation.y, 0.0001f)
+        assertEquals(0.8f, agent.rotation.z, 0.0001f)
     }
 
     @Test

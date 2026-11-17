@@ -6,13 +6,13 @@ import kotlin.test.assertNull
 
 class GKAgentTest {
     @Test
-    fun `defaults mass to 1 and other tunables to 0`() {
+    fun `defaults the tunables to Apple's values`() {
         val agent = GKAgent()
 
         assertEquals(1f, agent.mass)
-        assertEquals(0f, agent.maxAcceleration)
-        assertEquals(0f, agent.maxSpeed)
-        assertEquals(0f, agent.radius)
+        assertEquals(1f, agent.maxAcceleration)
+        assertEquals(1f, agent.maxSpeed)
+        assertEquals(0.5f, agent.radius)
         assertEquals(0f, agent.speed)
         assertNull(agent.behavior)
         assertNull(agent.delegate)
