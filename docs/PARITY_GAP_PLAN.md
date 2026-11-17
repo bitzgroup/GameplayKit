@@ -30,7 +30,7 @@ or rarely used.
 
 | # | Missing | Notes | Pri |
 | --- | --- | --- | --- |
-| G1 | `GKCompositeBehavior` | A `GKBehavior` whose weighted members are other behaviors. Small: reuses the existing weighted-sum steering combination. | P1 |
+| ~~G1~~ | ~~`GKCompositeBehavior`~~ | **Done**, verified on iOS/tvOS simulators against equivalent plain behaviors: member weights multiply their goals' weights, and nested composites multiply through. | P1 |
 | G2 | `GKRTree` | The third spatial-partitioning structure beside `GKQuadtree`/`GKOctree`, with `GKRTreeSplitStrategy` (`halve`/`linear`/`quadratic`/`reduceOverlap`). Phase 4 covered only the other two and never recorded this one. | P2 |
 | G3 | `GKSphereObstacle` | The 3D sibling of `GKCircleObstacle`, used by `GKGoal(toAvoid:maxPredictionTime:)` with `GKAgent3D`. Check that 3D agents can avoid obstacles at all today. | P2 |
 
@@ -38,7 +38,7 @@ or rarely used.
 
 | # | Class | Missing | Pri |
 | --- | --- | --- | --- |
-| G4 | `GKObstacleGraph` | `lockConnection(from:to:)`, `unlockConnection(from:to:)`, `isConnectionLocked(from:to:)`; `connectUsingObstacles(node:ignoring:)`, `connectUsingObstacles(node:ignoringBufferRadiusOf:)` (only the plain `connectNode` form exists) | P1 |
+| ~~G4~~ | ~~`GKObstacleGraph`~~ | ~~`lockConnection(from:to:)`, `unlockConnection(from:to:)`, `isConnectionLocked(from:to:)`; `connectUsingObstacles(node:ignoring:)`, `connectUsingObstacles(node:ignoringBufferRadiusOf:)`~~ — **Done**, verified on iOS/tvOS simulators: a lock keeps only its own direction. `connectNode` is renamed to Apple's `connectUsingObstacles`. | P1 |
 | G5 | `GKGridGraph` | Generic custom node class (`GKGridGraph<NodeType>` / `classForGenericArgument(at:)`) — the same limitation already recorded for `GKMeshGraph`, but not recorded here. A node-factory lambda parameter would cover both. | P2 |
 | G6 | `GKNoise` | `init(componentNoises:selectionNoise:)` and `init(componentNoises:selectionNoise:componentBoundaries:boundaryBlendDistances:)` (noise selection/blending) | P2 |
 | G7 | `GKNoise` | `remapValues(toCurveWithControlPoints:)`, `remapValues(toTerracesWithPeaks:terracesInverted:)` — recorded as "not implemented" on the grounds that they are rendering-adjacent; they are in fact pure value transforms and belong to the algorithmic core. | P2 |
@@ -70,7 +70,7 @@ Each step is one `feature/*` branch and PR against `develop`, updating
 `API_COMPATIBILITY.md` in the same PR.
 
 1. ~~Section 1.3 verification on a simulator; fix or document whatever differs.~~ Done.
-2. G1 (`GKCompositeBehavior`), G4 (`GKObstacleGraph` locking / ignore lists).
+2. ~~G1 (`GKCompositeBehavior`), G4 (`GKObstacleGraph` locking / ignore lists).~~ Done.
 3. G6, G7 (noise selection and remapping).
 4. G2 (`GKRTree`), G3 (`GKSphereObstacle`), G5 (custom grid/mesh node types).
 5. G8, G9 only on demand.

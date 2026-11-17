@@ -95,6 +95,13 @@ Two deviation categories recur throughout and are called out once here rather th
   `vertexCount`/`vertex(at:)` accessors.
 - `GKObstacleGraph`'s buffer-radius vertex offsetting assumes convex, non-self-intersecting
   obstacle polygons (undocumented by Apple for the concave/self-intersecting case).
+- `GKObstacleGraph.connectUsingObstacles(node, ignoring)` covers Apple's `connectUsingObstacles(node:)`
+  and `connectUsingObstacles(node:ignoring:)`; `connectUsingObstacles(node:ignoringBufferRadiusOf:)`
+  is `connectUsingObstaclesIgnoringBufferRadius`, since the two would clash as Kotlin overloads.
+  (Before 0.4.0 the plain form was `connectNode`, still there as a deprecated alias.) Connection
+  locks match Apple's observed behavior (verified on iOS/tvOS simulators): a lock is one-way,
+  keeps only a connection that exists when obstacles change, and never creates one; adding or
+  removing obstacles reconnects every node, those linked in from outside included.
 - `GKMeshGraph` is not generic over a custom node subclass — GameplayKit's `GKMeshGraph<NodeType>`
   supports one via Obj-C's dynamic class-based construction, which Kotlin has no equivalent for.
   Triangulation uses the classic Bowyer-Watson algorithm (*contract-conformant, not
@@ -110,7 +117,10 @@ Two deviation categories recur throughout and are called out once here rather th
 
 ## Agents, goals, and behaviors (`GKAgent`, `GKGoal`, `GKBehavior`)
 
-- **Not implemented yet:** `GKCompositeBehavior` (G1) and `GKSphereObstacle` (G3, the 3D obstacle
+- `GKCompositeBehavior` sums its member behaviors' forces by weight, as Apple's does (verified on
+  iOS/tvOS simulators). Unlike Apple, where an agent whose composite also has goals of its own
+  crashes on update, those goals are simply added to the sum.
+- **Not implemented yet:** `GKSphereObstacle` (G3, the 3D obstacle
   for `GKAgent3D` avoidance) — planned; see `docs/PARITY_GAP_PLAN.md`.
 - `GKAgent2D`/`GKAgent3D` share one internal `Vector3` position/velocity/heading simulation, so
   steering is implemented once for both dimensions rather than twice.
