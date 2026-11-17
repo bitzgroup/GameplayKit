@@ -55,7 +55,8 @@ class GKGoalTest {
 
         fun coastingAgent() =
             GKAgent2D().apply {
-                velocity = Vector2(5f, 0f)
+                rotation = 0f
+                speed = 5f
                 maxSpeed = 5f
                 maxAcceleration = 20f
                 radius = 1f
@@ -78,7 +79,8 @@ class GKGoalTest {
 
         fun coastingAgent() =
             GKAgent2D().apply {
-                velocity = Vector2(5f, 0f)
+                rotation = 0f
+                speed = 5f
                 maxSpeed = 5f
                 maxAcceleration = 20f
                 radius = 1f
@@ -113,10 +115,15 @@ class GKGoalTest {
 
     @Test
     fun `toAlignWith turns the agent's velocity toward its neighbor's heading`() {
-        val neighbor = GKAgent2D().apply { velocity = Vector2(5f, 0f) }
+        val neighbor =
+            GKAgent2D().apply {
+                rotation = 0f
+                speed = 5f
+            }
         val agent =
             GKAgent2D().apply {
-                velocity = Vector2(0f, 5f)
+                rotation = (PI / 2).toFloat()
+                speed = 5f
                 maxSpeed = 5f
                 maxAcceleration = 50f
                 behavior = GKBehavior.of(GKGoal.toAlignWith(listOf(neighbor), 10f, PI.toFloat()), 1f)
@@ -146,7 +153,8 @@ class GKGoalTest {
     fun `toReachTargetSpeed moves speed toward the target speed`() {
         val agent =
             GKAgent2D().apply {
-                velocity = Vector2(5f, 0f)
+                rotation = 0f
+                speed = 5f
                 maxSpeed = 100f
                 maxAcceleration = 50f
                 behavior = GKBehavior.of(GKGoal.toReachTargetSpeed(2f), 1f)
@@ -163,7 +171,8 @@ class GKGoalTest {
         fun movingTarget() =
             GKAgent2D().apply {
                 position = Vector2(50f, 0f)
-                velocity = Vector2(0f, 20f)
+                rotation = (PI / 2).toFloat()
+                speed = 20f
                 maxSpeed = 20f
             }
         val interceptTarget = movingTarget()

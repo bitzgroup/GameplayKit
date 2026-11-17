@@ -44,7 +44,7 @@ or rarely used.
 | ~~G7~~ | ~~`GKNoise`~~ | ~~`remapValues(toCurveWithControlPoints:)`, `remapValues(toTerracesWithPeaks:terracesInverted:)`~~ — **Done** as `remapValuesToCurve`/`remapValuesToTerraces`, following libnoise's curve/terrace modules: on iOS/tvOS simulators Apple's curve remap raises an exception for any dictionary and its terrace remap doesn't trace terraces (recorded deviation). | P2 |
 | G8 | `GKPath` | 3D paths (`init(float3Points:…)`) — recorded as out of scope; needed only if `GKAgent3D` path following is wanted. | P3 |
 | G9 | `GKEntity` / `GKComponent` | `copy()` — excluded with `NSCopying`; prototype-entity copying is a common pattern. Reconsider as explicit `open fun copy()`. | P3 |
-| G10 | `GKAgent2D` / `GKAgent3D` | Found while probing G3: on Apple, setting `speed` sets the velocity along the agent's heading, a new 3D agent heads along +z, a new 2D agent's `rotation` is π/2, and `GKAgent3D.velocity` is read-only. Here `speed` is only a reading, both agents head along +x, and 3D velocity is settable. | P2 |
+| ~~G10~~ | ~~`GKAgent2D` / `GKAgent3D`~~ | **Done**, verified on iOS/tvOS simulators; the defaults differed too (Apple: `maxSpeed`/`maxAcceleration` 1, `radius` 0.5 — here all 0, so a default agent never moved). Found while probing G3: on Apple, setting `speed` sets the velocity along the agent's heading, a new 3D agent heads along +z, a new 2D agent's `rotation` is π/2, and `GKAgent3D.velocity` is read-only. Here `speed` is only a reading, both agents head along +x, and 3D velocity is settable. | P2 |
 
 ### 1.3 Behavior to verify — done
 
@@ -75,7 +75,7 @@ Each step is one `feature/*` branch and PR against `develop`, updating
 3. ~~G6, G7 (noise selection and remapping).~~ Done, plus the `-1..1` clamp it surfaced.
 4. ~~G2 (`GKRTree`), G3 (`GKSphereObstacle`), G5 (custom grid/mesh node types).~~ Done, plus the
    obstacle placement G3 surfaced.
-5. G10 (agent `speed`/default heading), found while doing step 4.
+5. ~~G10 (agent `speed`/default heading), found while doing step 4.~~ Done.
 6. G8, G9 only on demand.
 
 ## 3. Suggested changes to recorded scope decisions — done

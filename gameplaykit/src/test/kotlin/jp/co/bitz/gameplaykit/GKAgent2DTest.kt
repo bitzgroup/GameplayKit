@@ -1,7 +1,7 @@
 package jp.co.bitz.gameplaykit
 
-import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -9,16 +9,27 @@ import kotlin.time.Duration.Companion.seconds
 
 class GKAgent2DTest {
     @Test
-    fun `position velocity and rotation round-trip through their 2D setters`() {
+    fun `position and rotation round-trip through their 2D setters`() {
         val agent = GKAgent2D()
 
         agent.position = Vector2(1f, 2f)
-        agent.velocity = Vector2(3f, 4f)
-        agent.rotation = (PI / 2).toFloat()
+        agent.rotation = 1f
 
         assertEquals(Vector2(1f, 2f), agent.position)
-        assertEquals(Vector2(3f, 4f), agent.velocity)
-        assertTrue(abs(agent.rotation - (PI / 2).toFloat()) < 0.0001f)
+        assertTrue(abs(agent.rotation - 1f) < 0.0001f)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun `the deprecated velocity setter sets rotation and speed`() {
+        val agent = GKAgent2D()
+
+        agent.velocity = Vector2(3f, 4f)
+
+        assertEquals(5f, agent.speed, 0.0001f)
+        assertEquals(atan2(4f, 3f), agent.rotation, 0.0001f)
+        assertEquals(3f, agent.velocity.x, 0.0001f)
+        assertEquals(4f, agent.velocity.y, 0.0001f)
     }
 
     @Test

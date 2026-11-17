@@ -99,7 +99,8 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 - [x] `GKAgent` (base, a `GKComponent`) / `GKAgent2D` / `GKAgent3D` — share one internal `Vector3`
       position/velocity/heading simulation, so steering is implemented once for both dimensions;
       `GKAgent3D.rotation` is a normalized forward-direction `Vector3` rather than GameplayKit's
-      `simd_quatf` (no other API in this port needs roll around the forward axis)
+      `simd_quatf` (no other API in this port needs roll around the forward axis). Speed, heading and
+      defaults were aligned with Apple's later (`PARITY_GAP_PLAN.md` G10)
 - [x] `GKAgentDelegate` — `agentWillUpdate`/`agentDidUpdate`, sync agent transform with owning object
 - [x] `GKPath` — 2D-only polygonal path (`points`, `radius`, `cyclical`) used by follow/stay-on-path
       goals; GameplayKit's 3D path variant is out of scope

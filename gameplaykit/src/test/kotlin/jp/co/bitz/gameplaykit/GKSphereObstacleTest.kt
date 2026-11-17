@@ -9,7 +9,6 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * Mirrors the tic-tac-toe sample's `GKSphereObstacleParityTests` probe: the direction each agent
  * swerves, not exact positions (Apple's steering formulas aren't the same as this library's).
- * Agents get their starting velocity directly; Apple's probe sets `speed` along the default heading.
  */
 class GKSphereObstacleTest {
     private fun behavior(obstacle: GKObstacle): GKBehavior =
@@ -36,7 +35,7 @@ class GKSphereObstacleTest {
                 maxSpeed = 5f
                 maxAcceleration = 20f
                 radius = 1f
-                velocity = Vector3(0f, 0f, 5f)
+                speed = 5f
                 behavior = behavior(obstacle)
             }
         repeat(240) { agent.update((1.0 / 60).seconds) }
@@ -49,7 +48,8 @@ class GKSphereObstacleTest {
                 maxSpeed = 5f
                 maxAcceleration = 20f
                 radius = 1f
-                velocity = Vector2(5f, 0f)
+                rotation = 0f
+                speed = 5f
                 behavior = behavior(obstacle)
             }
         repeat(240) { agent.update((1.0 / 60).seconds) }
