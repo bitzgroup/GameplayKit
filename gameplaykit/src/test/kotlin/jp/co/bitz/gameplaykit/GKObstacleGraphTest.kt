@@ -26,13 +26,13 @@ class GKObstacleGraphTest {
     }
 
     @Test
-    fun `connectNode links nodes with a clear line of sight`() {
+    fun `connectUsingObstacles links nodes with a clear line of sight`() {
         val graph = GKObstacleGraph()
         val a = GKGraphNode2D(Vector2(0f, 10f))
         val b = GKGraphNode2D(Vector2(8f, 10f))
 
-        graph.connectNode(a)
-        graph.connectNode(b)
+        graph.connectUsingObstacles(a)
+        graph.connectUsingObstacles(b)
 
         assertTrue(a.connectedNodes.contains(b))
     }
@@ -43,8 +43,8 @@ class GKObstacleGraphTest {
         val a = GKGraphNode2D(Vector2(0f, 0f))
         val b = GKGraphNode2D(Vector2(8f, 0f))
 
-        graph.connectNode(a)
-        graph.connectNode(b)
+        graph.connectUsingObstacles(a)
+        graph.connectUsingObstacles(b)
 
         assertFalse(a.connectedNodes.contains(b))
     }
@@ -54,8 +54,8 @@ class GKObstacleGraphTest {
         val graph = GKObstacleGraph(listOf(rectangleObstacle()), bufferRadius = 0f)
         val start = GKGraphNode2D(Vector2(0f, 0f))
         val goal = GKGraphNode2D(Vector2(8f, 0f))
-        graph.connectNode(start)
-        graph.connectNode(goal)
+        graph.connectUsingObstacles(start)
+        graph.connectUsingObstacles(goal)
 
         val path = graph.findPath(start, goal)
 
@@ -73,15 +73,15 @@ class GKObstacleGraphTest {
         val unbuffered = GKObstacleGraph(listOf(obstacle), bufferRadius = 0f)
         val a1 = GKGraphNode2D(start)
         val b1 = GKGraphNode2D(goal)
-        unbuffered.connectNode(a1)
-        unbuffered.connectNode(b1)
+        unbuffered.connectUsingObstacles(a1)
+        unbuffered.connectUsingObstacles(b1)
         assertTrue(a1.connectedNodes.contains(b1))
 
         val buffered = GKObstacleGraph(listOf(obstacle), bufferRadius = 3f)
         val a2 = GKGraphNode2D(start)
         val b2 = GKGraphNode2D(goal)
-        buffered.connectNode(a2)
-        buffered.connectNode(b2)
+        buffered.connectUsingObstacles(a2)
+        buffered.connectUsingObstacles(b2)
         assertFalse(a2.connectedNodes.contains(b2))
     }
 }

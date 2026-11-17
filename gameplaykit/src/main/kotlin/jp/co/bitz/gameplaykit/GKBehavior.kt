@@ -6,7 +6,7 @@ import kotlin.time.Duration
  * A weighted collection of [GKGoal] objects that together define an agent's steering behavior,
  * mirroring GameplayKit's `GKBehavior`. Assign to [GKAgent.behavior] to drive an agent.
  */
-public class GKBehavior {
+public open class GKBehavior {
     private val weightsByGoal: LinkedHashMap<GKGoal, Float> = linkedMapOf()
 
     /** The number of goals currently in this behavior. */
@@ -34,7 +34,7 @@ public class GKBehavior {
         weightsByGoal.clear()
     }
 
-    internal fun totalForce(
+    internal open fun totalForce(
         agent: GKAgent,
         deltaTime: Duration,
     ): Vector3 {
