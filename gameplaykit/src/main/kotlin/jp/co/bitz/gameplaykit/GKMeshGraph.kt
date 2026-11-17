@@ -31,10 +31,10 @@ public data class GKTriangle(
  * [addObstacles] then [triangulate] to (re)build the mesh; [triangulationMode] controls what
  * `triangulate()` populates the graph with.
  *
- * Deviation from GameplayKit: not generic over a custom node subclass (Apple's
- * `GKMeshGraph<NodeType>` lets you supply your own `GKGraphNode2D` subclass via a Class/Type
- * argument, using Obj-C's dynamic object creation); this always builds plain [GKGraphNode2D]
- * nodes, matching the non-generic choice already made for [GKObstacleGraph] in this port.
+ * [nodeFactory] builds every node [triangulate] adds — Apple's `nodeClass:` argument, which builds
+ * them with the class's `init(point:)`. Pass a subclass's constructor (`::MyNode`) to use it;
+ * [nodes] still lists them as [GKGraphNode], so cast back.
+ *
  * Triangulation uses the classic Bowyer-Watson algorithm (see `DelaunayTriangulation.kt`) since
  * GameplayKit doesn't document its own, so triangle boundaries are contract-conformant, not
  * bit-identical.
@@ -43,6 +43,7 @@ public class GKMeshGraph(
     public val bufferRadius: Float,
     public val min: Vector2,
     public val max: Vector2,
+    private val nodeFactory: (position: Vector2) -> GKGraphNode2D = ::GKGraphNode2D,
 ) : GKGraph() {
     /**
      * Which kind of node [triangulate] populates the graph with. Defaults to
@@ -139,7 +140,7 @@ public class GKMeshGraph(
     private fun buildVertexNodes() {
         val nodeByPosition = mutableMapOf<Vector2, GKGraphNode2D>()
         walkableTriangles.forEach { triangle ->
-            triangle.vertices.forEach { vertex -> nodeByPosition.getOrPut(vertex) { GKGraphNode2D(vertex) } }
+            triangle.vertices.forEach { vertex -> nodeByPosition.getOrPut(vertex) { nodeFactory(vertex) } }
         }
         add(nodeByPosition.values.toList())
         walkableTriangles.forEach {
@@ -149,7 +150,7 @@ public class GKMeshGraph(
     }
 
     private fun buildCenterNodes(adjacency: List<Pair<Int, Int>>) {
-        val centerNodes = walkableTriangles.map { GKGraphNode2D(it.centroid) }
+        val centerNodes = walkableTriangles.map { nodeFactory(it.centroid) }
         add(centerNodes)
         adjacency.forEach { (i, j) -> centerNodes[i].addConnections(listOf(centerNodes[j]), bidirectional = true) }
     }
@@ -161,7 +162,7 @@ public class GKMeshGraph(
         val edgeNodeByAdjacency =
             adjacency.associateWith { (i, j) ->
                 val edge = checkNotNull(sharedEdge(walkableTriangles[i], walkableTriangles[j]))
-                GKGraphNode2D(Vector2((edge.first.x + edge.second.x) / 2f, (edge.first.y + edge.second.y) / 2f))
+                nodeFactory(Vector2((edge.first.x + edge.second.x) / 2f, (edge.first.y + edge.second.y) / 2f))
             }
         add(edgeNodeByAdjacency.values.toList())
         connectEdgeNodesSharingATriangle(edgeNodeByAdjacency)

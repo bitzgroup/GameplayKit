@@ -67,6 +67,9 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 - [x] `GKQuad` / `GKBox` — axis-aligned 2D/3D bounding regions
 - [x] `GKQuadtree` / `GKQuadtreeNode` (2D spatial partitioning)
 - [x] `GKOctree` / `GKOctreeNode` (3D spatial partitioning)
+- [x] `GKRTree` / `GKRTreeSplitStrategy` (2D bounding-rect partitioning) — added later
+      (`PARITY_GAP_PLAN.md` G2); query and removal semantics follow Apple's observed behavior,
+      result order after a split doesn't
 
 ## Phase 5 — Pathfinding
 
@@ -78,6 +81,7 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 - [x] `GKGridGraphNode` / `GKGridGraph` (grid-based pathfinding, `diagonalsAllowed`)
 - [x] `GKObstacle` (base)
 - [x] `GKCircleObstacle`
+- [x] `GKSphereObstacle` — added later (`PARITY_GAP_PLAN.md` G3), for `GKAgent3D` obstacle avoidance
 - [x] `GKPolygonObstacle` — exposes `vertices: List<Vector2>` rather than GameplayKit's paired
       `vertexCount`/`vertex(at:)` accessors
 - [x] `GKObstacleGraph` (visibility graph generated from obstacles, buffer radius); vertex-offset
@@ -85,9 +89,10 @@ rather than a literal Obj-C/Swift-to-Kotlin transliteration. In particular:
 - [x] `GKMeshGraph` / `GKTriangle` / `GKMeshGraphTriangulationMode` — Delaunay-triangulated navmesh
       graph generated from obstacles (an alternative to `GKObstacleGraph`, added after initially
       being miscategorized as SceneKit-only — the real `GKMeshGraph` is purely 2D/obstacle-based,
-      just like `GKObstacleGraph`). Not generic over a custom node subclass (Apple's
-      `GKMeshGraph<NodeType>` supports one via Obj-C's dynamic class-based construction); triangulation
-      uses the classic Bowyer-Watson algorithm since GameplayKit doesn't document its own
+      just like `GKObstacleGraph`). Triangulation uses the classic Bowyer-Watson algorithm since
+      GameplayKit doesn't document its own
+- [x] Custom node classes for `GKGridGraph`/`GKMeshGraph`/`GKObstacleGraph` — a `nodeFactory`
+      parameter standing in for Apple's `nodeClass:` (added later, `PARITY_GAP_PLAN.md` G5)
 
 ## Phase 6 — Agents, Goals, and Behaviors (Steering)
 

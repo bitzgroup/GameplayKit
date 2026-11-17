@@ -79,11 +79,20 @@ Two deviation categories recur throughout and are called out once here rather th
   once per cycle, a new cycle never starts with the value the previous one ended on — Apple's
   behavior, verified the same way.
 
-## Spatial partitioning (`GKQuadtree`, `GKOctree`)
+## Spatial partitioning (`GKQuadtree`, `GKOctree`, `GKRTree`)
 
-- **`GKRTree` is not implemented yet** (with `GKRTreeSplitStrategy`) — planned; see
-  `docs/PARITY_GAP_PLAN.md` (G2).
-- Both relax Apple's `ElementType: AnyObject` constraint to Kotlin's `Any`, so value/data classes
+- `GKRTree` matches Apple's observed behavior (verified on iOS/tvOS simulators, recorded in the
+  tic-tac-toe sample's `GameplayKitParity` probes): a query returns only elements whose rect it
+  fully contains, not every one it intersects; an element can be added more than once; removal
+  looks only inside child nodes whose bounds contain the rect passed, and there removes the
+  element's first record whatever its rect. Its methods are `add`/`remove`/`elements`, like
+  `GKQuadtree`'s, rather than Apple's `addElement`/`removeElement`/`elements(inBoundingRectMin:)`.
+  `maxNumberOfChildren` below 2 throws `IllegalArgumentException` (Apple's crashes on the second
+  insert). *Result order is not Apple's* once the tree has split: the split strategies are the
+  textbook algorithms (halving, Guttman's linear and quadratic, the R*-tree split), since Apple
+  doesn't document its own; while every element fits in one node, results come in insertion
+  order, as on Apple.
+- All three relax Apple's `ElementType: AnyObject` constraint to Kotlin's `Any`, so value/data classes
   can be stored directly rather than requiring a reference-type wrapper — consistent with this
   library's idiomatic-Kotlin design principle.
 
@@ -102,9 +111,14 @@ Two deviation categories recur throughout and are called out once here rather th
   locks match Apple's observed behavior (verified on iOS/tvOS simulators): a lock is one-way,
   keeps only a connection that exists when obstacles change, and never creates one; adding or
   removing obstacles reconnects every node, those linked in from outside included.
-- `GKMeshGraph` is not generic over a custom node subclass — GameplayKit's `GKMeshGraph<NodeType>`
-  supports one via Obj-C's dynamic class-based construction, which Kotlin has no equivalent for.
-  Triangulation uses the classic Bowyer-Watson algorithm (*contract-conformant, not
+- Apple's `nodeClass:` initializers for `GKGridGraph`, `GKMeshGraph` and `GKObstacleGraph` are a
+  `nodeFactory` constructor parameter instead (pass a subclass's constructor, e.g. `::MyNode`),
+  since Kotlin can't construct a type from a class object. The graphs aren't generic, so lookups
+  return the base node type; cast back. As on Apple (verified on iOS/tvOS simulators), only the
+  nodes a graph builds itself come from the factory: a plain node can still join a grid built of
+  a subclass. (In Swift, the generic argument alone doesn't pick the class either — only
+  `nodeClass:` does.) `classForGenericArgument(at:)` has no counterpart.
+- `GKMeshGraph` triangulation uses the classic Bowyer-Watson algorithm (*contract-conformant, not
   bit-identical*: a valid Delaunay triangulation of the input points, not necessarily matching
   Apple's own triangulator's exact edge choices on degenerate/co-circular inputs).
 - `GKGraph.remove` cuts every connection to or from the removed nodes, and `GKGridGraph.remove`
@@ -120,8 +134,12 @@ Two deviation categories recur throughout and are called out once here rather th
 - `GKCompositeBehavior` sums its member behaviors' forces by weight, as Apple's does (verified on
   iOS/tvOS simulators). Unlike Apple, where an agent whose composite also has goals of its own
   crashes on update, those goals are simply added to the sum.
-- **Not implemented yet:** `GKSphereObstacle` (G3, the 3D obstacle
-  for `GKAgent3D` avoidance) — planned; see `docs/PARITY_GAP_PLAN.md`.
+- `GKGoal.toAvoidObstacles` places obstacles as Apple does (verified on iOS/tvOS simulators):
+  Apple keeps every agent in one 3D space where a 2D (x, y) is (x, 0, y), so a `GKAgent3D` avoids a
+  `GKCircleObstacle` at (x, y) as the sphere at (x, 0, y), and a `GKAgent2D` avoids a
+  `GKSphereObstacle` at (x, y, z) as the circle at (x, z). (Before, a 3D agent avoided a circle as
+  an infinite cylinder along z, and spheres didn't exist.) A `GKPolygonObstacle` is avoided as its
+  bounding circle.
 - `GKAgent2D`/`GKAgent3D` share one internal `Vector3` position/velocity/heading simulation, so
   steering is implemented once for both dimensions rather than twice.
 - `GKAgent3D.rotation` is a normalized forward-direction `Vector3`, not GameplayKit's `simd_quatf`

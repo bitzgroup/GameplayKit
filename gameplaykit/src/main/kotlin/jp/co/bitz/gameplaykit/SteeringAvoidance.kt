@@ -29,9 +29,8 @@ internal fun avoidObstacles(
     val futurePosition = agent.position3 + agent.velocity3 * dt
     var push = zero3()
     obstacles.forEach { obstacle ->
-        val (center, obstacleRadius) = obstacleCircle(obstacle)
-        val centerPosition = Vector3(center.x, center.y, futurePosition.z)
-        push += pushAway(futurePosition, centerPosition, agent.radius + obstacleRadius)
+        val (center, obstacleRadius) = obstacleSphere(agent, obstacle)
+        push += pushAway(futurePosition, center, agent.radius + obstacleRadius)
     }
     return steerToward(agent, push)
 }
@@ -50,17 +49,30 @@ private fun pushAway(
     return direction * (minDistance - distance)
 }
 
-// Approximates every obstacle as a bounding circle: exact for GKCircleObstacle, and the smallest
-// circle (centered on the centroid) enclosing every vertex for GKPolygonObstacle.
-private fun obstacleCircle(obstacle: GKObstacle): Pair<Vector2, Float> =
-    when (obstacle) {
-        is GKCircleObstacle -> obstacle.position to obstacle.radius
+// Every obstacle as a sphere in the agent's own coordinates (a GKAgent2D's (x, y) is (x, y, 0) here).
+// Apple keeps all agents in one 3D space where a 2D (x, y) is (x, 0, y), so a 2D obstacle at (x, y)
+// is at (x, 0, y) to a GKAgent3D, and a sphere's (x, y, z) is (x, z) to a GKAgent2D (verified on
+// iOS/tvOS simulators). A polygon is approximated by the smallest circle centered on its centroid
+// that encloses every vertex.
+private fun obstacleSphere(
+    agent: GKAgent,
+    obstacle: GKObstacle,
+): Pair<Vector3, Float> {
+    val is3D = agent is GKAgent3D
+    val planar = { point: Vector2 -> if (is3D) Vector3(point.x, 0f, point.y) else Vector3(point.x, point.y, 0f) }
+    return when (obstacle) {
+        is GKSphereObstacle -> {
+            val p = obstacle.position
+            (if (is3D) p else Vector3(p.x, p.z, 0f)) to obstacle.radius
+        }
+        is GKCircleObstacle -> planar(obstacle.position) to obstacle.radius
         is GKPolygonObstacle -> {
             val centroid = polygonCentroid(obstacle.vertices)
-            centroid to (obstacle.vertices.maxOfOrNull { (it - centroid).length() } ?: 0f)
+            planar(centroid) to (obstacle.vertices.maxOfOrNull { (it - centroid).length() } ?: 0f)
         }
-        else -> Vector2(0f, 0f) to 0f
+        else -> zero3() to 0f
     }
+}
 
 private fun polygonCentroid(vertices: List<Vector2>): Vector2 {
     if (vertices.isEmpty()) return Vector2(0f, 0f)

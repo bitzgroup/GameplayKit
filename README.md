@@ -20,9 +20,10 @@ This project is under active development. Implemented so far:
 - **Randomization** — `GKRandom`, `GKRandomSource` and its subclasses
   (`GKLinearCongruentialRandomSource`, `GKMersenneTwisterRandomSource`, `GKARC4RandomSource`),
   `GKRandomDistribution` and its subclasses (`GKGaussianDistribution`, `GKShuffledDistribution`)
-- **Spatial partitioning** — `GKQuadtree`/`GKQuadtreeNode`, `GKOctree`/`GKOctreeNode`
+- **Spatial partitioning** — `GKQuadtree`/`GKQuadtreeNode`, `GKOctree`/`GKOctreeNode`, `GKRTree`
 - **Pathfinding** — `GKGraphNode`/`GKGraphNode2D`/`GKGraphNode3D`, `GKGraph`,
-  `GKGridGraphNode`/`GKGridGraph`, `GKObstacle`/`GKCircleObstacle`/`GKPolygonObstacle`,
+  `GKGridGraphNode`/`GKGridGraph`, `GKObstacle`/`GKCircleObstacle`/`GKSphereObstacle`/
+  `GKPolygonObstacle`,
   `GKObstacleGraph`, `GKMeshGraph`
 - **Agents, goals, and behaviors (steering)** — `GKAgent`/`GKAgent2D`/`GKAgent3D`,
   `GKAgentDelegate`, `GKPath`, `GKGoal`, `GKBehavior`
@@ -93,6 +94,11 @@ val quadtree =
     )
 quadtree.add("player", point = Vector2(12f, 34f))
 val nearby = quadtree.elements(GKQuad(min = Vector2(0f, 0f), max = Vector2(20f, 40f)))
+
+// An R-tree query returns only elements whose rect lies entirely inside the query rect.
+val rtree = GKRTree<String>(maxNumberOfChildren = 4)
+rtree.add("wall", Vector2(10f, 0f), Vector2(12f, 50f), GKRTreeSplitStrategy.QUADRATIC)
+val inside = rtree.elements(rectMin = Vector2(0f, 0f), rectMax = Vector2(20f, 60f)) // ["wall"]
 ```
 
 ### Pathfinding

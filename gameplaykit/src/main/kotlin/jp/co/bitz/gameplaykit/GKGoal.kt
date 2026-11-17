@@ -32,7 +32,13 @@ public class GKGoal private constructor(
             maxPredictionTime: Double,
         ): GKGoal = GKGoal { self, _ -> avoidAgents(self, agents, maxPredictionTime) }
 
-        /** A goal that steers to avoid colliding with [obstacles], predicting up to [maxPredictionTime] ahead. */
+        /**
+         * A goal that steers to avoid colliding with [obstacles], predicting up to [maxPredictionTime]
+         * ahead. As on Apple, which keeps every agent in one 3D space where a 2D (x, y) is (x, 0, y)
+         * (verified on iOS/tvOS simulators), a [GKAgent3D] avoids a [GKCircleObstacle] at (x, y) as
+         * the sphere at (x, 0, y), and a [GKAgent2D] avoids a [GKSphereObstacle] at (x, y, z) as
+         * the circle at (x, z). A [GKPolygonObstacle] is avoided as its bounding circle.
+         */
         public fun toAvoidObstacles(
             obstacles: List<GKObstacle>,
             maxPredictionTime: Double,
