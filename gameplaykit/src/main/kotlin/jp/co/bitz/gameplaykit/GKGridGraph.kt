@@ -4,12 +4,19 @@ package jp.co.bitz.gameplaykit
  * A [GKGraph] in which movement is constrained to an integer grid, mirroring GameplayKit's
  * `GKGridGraph`. The full `gridWidth x gridHeight` grid of [GKGridGraphNode] is created and
  * connected to its orthogonal (and, if [diagonalsAllowed], diagonal) neighbors up front.
+ *
+ * [nodeFactory] builds each of those nodes — Apple's `nodeClass:` argument, which builds them with
+ * the class's `init(gridPosition:)`. Pass a subclass's constructor (`::MyNode`) to fill the grid
+ * with it; lookups still return [GKGridGraphNode], so cast back. Nodes added later through
+ * [connectNodeToAdjacentNodes] needn't be of that class, as on Apple (verified on iOS/tvOS
+ * simulators).
  */
 public class GKGridGraph(
     public val gridOrigin: Vector2Int,
     public val gridWidth: Int,
     public val gridHeight: Int,
     public val diagonalsAllowed: Boolean,
+    nodeFactory: (gridPosition: Vector2Int) -> GKGridGraphNode = ::GKGridGraphNode,
 ) : GKGraph() {
     private val nodesByPosition: MutableMap<Vector2Int, GKGridGraphNode> = mutableMapOf()
 
@@ -17,7 +24,7 @@ public class GKGridGraph(
         for (dx in 0 until gridWidth) {
             for (dy in 0 until gridHeight) {
                 val position = Vector2Int(gridOrigin.x + dx, gridOrigin.y + dy)
-                val node = GKGridGraphNode(position)
+                val node = nodeFactory(position)
                 nodesByPosition[position] = node
                 add(listOf(node))
             }

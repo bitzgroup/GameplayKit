@@ -11,10 +11,15 @@ package jp.co.bitz.gameplaykit
  * The vertex-offset used to apply [bufferRadius] assumes convex, non-self-intersecting obstacle
  * polygons; GameplayKit's own buffering algorithm is undocumented, so this is not guaranteed to be
  * bit-identical, only contract-conformant (paths stay at least [bufferRadius] from obstacle edges).
+ *
+ * [nodeFactory] builds the nodes for obstacle vertices — Apple's `nodeClass:` argument. Pass a
+ * subclass's constructor (`::MyNode`) to use it; [nodes] still returns [GKGraphNode2D], so cast
+ * back.
  */
 public class GKObstacleGraph(
     obstacles: List<GKPolygonObstacle> = emptyList(),
     public val bufferRadius: Float = 0f,
+    private val nodeFactory: (position: Vector2) -> GKGraphNode2D = ::GKGraphNode2D,
 ) : GKGraph() {
     private val mutableObstacles: MutableList<GKPolygonObstacle> = mutableListOf()
     private val bufferedPolygons: MutableMap<GKPolygonObstacle, List<Vector2>> = mutableMapOf()
@@ -35,7 +40,7 @@ public class GKObstacleGraph(
             mutableObstacles.add(obstacle)
             val buffered = bufferedPolygon(obstacle.vertices, bufferRadius)
             bufferedPolygons[obstacle] = buffered
-            val nodes = buffered.map { GKGraphNode2D(it) }
+            val nodes = buffered.map { nodeFactory(it) }
             obstacleNodes[obstacle] = nodes
             add(nodes)
         }
