@@ -181,7 +181,8 @@ val height = map.value(at = Vector2Int(10, 20)) // -1f..1f
 ./gradlew detekt            # static analysis
 ```
 
-See [`CLAUDE.md`](CLAUDE.md) for the full command reference and project structure.
+See [`CLAUDE.md`](CLAUDE.md) for the full command reference and project structure, and
+[`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request.
 
 ## License
 
