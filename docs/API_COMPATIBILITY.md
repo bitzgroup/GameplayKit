@@ -73,7 +73,7 @@ Two deviation categories recur throughout and are called out once here rather th
   draw from `lowestValue..min(highestValue, upperBound - 1)` straight from the random source, for
   every subclass — a Gaussian distribution is uniform here too, and a shuffled distribution's bag
   is left alone. An `upperBound` not above `lowestValue` throws `IllegalArgumentException` (Apple:
-  `NSInvalidArgumentException`). (Previously it was `nextInt().coerceAtMost(upperBound - 1)`,
+  `NSInvalidArgumentException`). (Before 0.3.0 it was `nextInt().coerceAtMost(upperBound - 1)`,
   which piled every excess draw onto the top value.)
 - `GKShuffledDistribution` never draws the same value twice in a row: besides producing every value
   once per cycle, a new cycle never starts with the value the previous one ended on — Apple's
@@ -125,7 +125,7 @@ Two deviation categories recur throughout and are called out once here rather th
   also clears their position lookup; `GKGridGraph.connectNodeToAdjacentNodes` adds the node to the
   graph, and `node(position)` never finds a node outside the grid — all as Apple's does (verified
   on iOS/tvOS simulators, recorded in the tic-tac-toe sample's `GameplayKitParity` probes).
-  Previously, removal only unregistered the nodes, so pathfinding still routed through them.
+  Before 0.3.0, removal only unregistered the nodes, so pathfinding still routed through them.
 - `GKPath`'s 3D variant is out of scope; only the 2D polygonal path used by follow/stay-on-path
   goals is implemented.
 
@@ -137,7 +137,7 @@ Two deviation categories recur throughout and are called out once here rather th
 - `GKGoal.toAvoidObstacles` places obstacles as Apple does (verified on iOS/tvOS simulators):
   Apple keeps every agent in one 3D space where a 2D (x, y) is (x, 0, y), so a `GKAgent3D` avoids a
   `GKCircleObstacle` at (x, y) as the sphere at (x, 0, y), and a `GKAgent2D` avoids a
-  `GKSphereObstacle` at (x, y, z) as the circle at (x, z). (Before, a 3D agent avoided a circle as
+  `GKSphereObstacle` at (x, y, z) as the circle at (x, z). (Before 0.5.0, a 3D agent avoided a circle as
   an infinite cylinder along z, and spheres didn't exist.) A `GKPolygonObstacle` is avoided as its
   bounding circle.
 - `GKAgent2D`/`GKAgent3D` share one internal `Vector3` position/velocity/heading simulation, so
@@ -225,7 +225,7 @@ Two deviation categories recur throughout and are called out once here rather th
   Android equivalent wired into this library).
 - **Sampled values are clamped to `-1..1`**, as on GameplayKit (verified on iOS/tvOS simulators):
   `GKNoise.value(at:)` and `GKNoiseMap` clamp what they return, while every operation works on
-  unclamped values — a constant `3` plus a constant `-2.5` samples as `0.5`. (Previously nothing
+  unclamped values — a constant `3` plus a constant `-2.5` samples as `0.5`. (Before 0.5.0 nothing
   was clamped, so e.g. a constant `2.5` sampled as `2.5` instead of `1`.)
 - **`GKNoise(componentNoises, selectionNoise, componentBoundaries, boundaryBlendDistances)`**
   matches GameplayKit's selection constructors (verified on iOS/tvOS simulators), including two
