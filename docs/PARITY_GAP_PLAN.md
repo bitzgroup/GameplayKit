@@ -43,7 +43,7 @@ or rarely used.
 | ~~G6~~ | ~~`GKNoise`~~ | ~~`init(componentNoises:selectionNoise:)` and `init(componentNoises:selectionNoise:componentBoundaries:boundaryBlendDistances:)`~~ — **Done**, verified on iOS/tvOS simulators: the chosen component's `-1..1` range is squeezed into its band of the selection axis, and blend distances have no effect. Also found: Apple clamps every sampled value to `-1..1` (intermediate results stay unclamped); this library didn't, fixed. | P2 |
 | ~~G7~~ | ~~`GKNoise`~~ | ~~`remapValues(toCurveWithControlPoints:)`, `remapValues(toTerracesWithPeaks:terracesInverted:)`~~ — **Done** as `remapValuesToCurve`/`remapValuesToTerraces`, following libnoise's curve/terrace modules: on iOS/tvOS simulators Apple's curve remap raises an exception for any dictionary and its terrace remap doesn't trace terraces (recorded deviation). | P2 |
 | G8 | `GKPath` | 3D paths (`init(float3Points:…)`) — recorded as out of scope; needed only if `GKAgent3D` path following is wanted. | P3 |
-| G9 | `GKEntity` / `GKComponent` | `copy()` — excluded with `NSCopying`; prototype-entity copying is a common pattern. Reconsider as explicit `open fun copy()`. | P3 |
+| ~~G9~~ | ~~`GKEntity` / `GKComponent`~~ | ~~`copy()`~~ — **Not ported, recorded as a deviation.** On iOS/tvOS simulators Apple's `copy()` gives `nil` for any entity holding a game-defined component, and for any game-defined entity subclass; it copies only entities made of framework classes, and drops agent state even then. A component copied alone is a fresh instance with none of the original's state. Prototype copying needs game code either way. | P3 |
 | ~~G10~~ | ~~`GKAgent2D` / `GKAgent3D`~~ | **Done**, verified on iOS/tvOS simulators; the defaults differed too (Apple: `maxSpeed`/`maxAcceleration` 1, `radius` 0.5 — here all 0, so a default agent never moved). Found while probing G3: on Apple, setting `speed` sets the velocity along the agent's heading, a new 3D agent heads along +z, a new 2D agent's `rotation` is π/2, and `GKAgent3D.velocity` is read-only. Here `speed` is only a reading, both agents head along +x, and 3D velocity is settable. | P2 |
 
 ### 1.3 Behavior to verify — done
@@ -76,7 +76,7 @@ Each step is one `feature/*` branch and PR against `develop`, updating
 4. ~~G2 (`GKRTree`), G3 (`GKSphereObstacle`), G5 (custom grid/mesh node types).~~ Done, plus the
    obstacle placement G3 surfaced.
 5. ~~G10 (agent `speed`/default heading), found while doing step 4.~~ Done.
-6. G8, G9 only on demand.
+6. ~~G9~~ — recorded as a deviation. G8 only on demand.
 
 ## 3. Suggested changes to recorded scope decisions — done
 
