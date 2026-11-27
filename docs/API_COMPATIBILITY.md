@@ -44,6 +44,14 @@ Two deviation categories recur throughout and are called out once here rather th
 - Typed component lookup (`GKEntity.component<T>()`, `GKComponentSystem<T>()`) uses reified
   generics instead of Obj-C's `Class` parameter; lookup matches the *exact* runtime class, same as
   GameplayKit (a subclass component is not found by its superclass's type).
+- **No `copy()` on `GKEntity` or `GKComponent`.** Apple's `NSCopying` there is no basis for
+  copying a prototype entity (verified on iOS/tvOS simulators, recorded in the tic-tac-toe sample's
+  `GameplayKitParity` probes). An entity holding any component the game defines, or any entity
+  subclass the game defines, copies to `nil`, which crashes a Swift caller. An entity made only of
+  GameplayKit/SpriteKit classes copies as if archived: a `GKSKNodeComponent`'s node is duplicated,
+  but an agent loses its position and speeds. A component copied alone is a new, unattached
+  instance with none of the original's state. To copy entities, write a factory or a `copy()` of
+  your own on your entity and component classes.
 
 ## State machines (`GKState`, `GKStateMachine`)
 
